@@ -1,0 +1,21 @@
+{
+  "type": "postprocess_input",
+  "name": "postprocess_input_file_Example",
+  "description": "Example Py4Incompact3D Postprocess Input file",
+  "mesh": {
+    "type": "mesh",
+    "name": "mesh_example",
+    "description": "Mesh example",
+    "properties": {
+      "Nx": 32,
+      "Ny": 33,
+      "Nz": 32,
+      "Lx": 3.14,
+      "Ly": 1,
+      "Lz": 3.14,
+      "BCx": 0,
+      "BCy": 1,
+      "BCz": 0
+    }
+  }
+}
