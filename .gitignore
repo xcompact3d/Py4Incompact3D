@@ -1,1 +1,3 @@
 *.pyc
+doc/build/doctrees
+doc/build/latex
