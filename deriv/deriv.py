@@ -10,19 +10,43 @@ import numpy as np
 def tdma(a, b, c, rhs):
     """ The Tri-Diagonal Matrix Algorithm.
 
-    Solves tri-diagonal matrices using TDMA.
+    Solves tri-diagonal matrices using TDMA where the matrices are of the form
+    [b0 c0
+     a1 b1 c1
+        a2 b2   c2
 
-    :param a:
-    :param b:
-    :param c:
-    :param rhs:
+           an-2 bn-2 cn-1
+                an-1 bn-1]
+
+    :param a: The `left' coefficients.
+    :param b: The diagonal coefficients. (All ones?)
+    :param c: The 'right' coefficients.
+    :param rhs: The right-hand side vector.
 
     :type a: numpy.ndarray
+    :type b: numpy.ndarray
+    :type c: numpy.ndarray
+    :type rhs: numpy.ndarray
 
-    :returns: dphidx -- the derivative
+    :returns: rhs -- the rhs vector overwritten with derivatives.
     :rtype: numpy.ndarray
     """
-    pass
+    
+    for i in range(rhs.shape[0]):
+        for j in range(rhs.shape[1]):
+            # Forward elimination
+            for k in range(1, rhs.shape[2]):
+                m = a[k] / b[k - 1]
+                b[k] -= m * c[k - 1]
+                rhs[i][j][k] -= m * c[k - 1]
+
+            # Backward substituion
+            rhs[i][j][-1] /= b[-1]
+            for k in range(rhs.shape[2] - 2, -1, -1):
+                rhs[i][j][k] -= c[k] * rhs[k + 1]
+                rhs[i][k][k] /= b[k]
+
+    return rhs
 
 def compute_rhs_0(mesh, field, axis):
     """ Compute the rhs for the derivative for periodic BCs.
