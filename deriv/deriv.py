@@ -38,6 +38,7 @@ def compute_rhs_0(mesh, field, axis):
     :rtype: numpy.ndarray
     """
 
+    # Setup
     rhs = np.zeros([field.shape[0], field.shape[1], field.shape[2]])
 
     if axis == 0:
@@ -50,6 +51,7 @@ def compute_rhs_0(mesh, field, axis):
     a = mesh.a * invdx / 2.0
     b = mesh.b * invdx / 4.0
 
+    # Compute RHS
     for i in range(field.shape[0]):
         for j in range(field.shape[1]):
             # XXX Due to python's negative indices, BC @ k = 0 automatically applied
@@ -81,6 +83,7 @@ def compute_rhs_1(mesh, field, axis):
     :rtype: numpy.ndarray
     """
 
+    # Setup
     rhs = np.zeros([field.shape[0], field.shape[1], field.shape[2]])
 
     if axis in field.vidx:
@@ -105,7 +108,8 @@ def compute_rhs_2(mesh, field, axis):
     :returns: rhs -- the right-hand side vector.
     :rtype: numpy.ndarray
     """
-    
+
+    # Setup
     rhs = np.zeros([field.shape[0], field.shape[1], field.shape[2]])
 
     if axis == 0:
@@ -197,6 +201,11 @@ def deriv(postproc, mesh, phi, axis):
     mesh.compute_derivvars()
 
     # Transpose the data to make loops more efficient
+    postproc.fields[phi] = np.swapaxes(postproc.fields[phi], axis, 2)
 
     rhs = compute_rhs(mesh, postproc.fields[phi])
+
+    # Transpose back to normal orientation and return
+    postproc.fields[phi] = np.swapaxes(postproc.fields[phi], 2, axis)
+    rhs = np.swapaxes(rhs, 2, axis)
     return tdma(rhs)
