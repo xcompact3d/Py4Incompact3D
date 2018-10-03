@@ -11,3 +11,9 @@ Welcome to Py4Incompact3D's documentation!
    :caption: Contents:
 
 .. include:: ../../README.rst
+
+API
+===
+
+.. automodule:: Py4Incompact3D.deriv.deriv
+    :members:
