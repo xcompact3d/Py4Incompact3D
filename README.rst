@@ -14,7 +14,7 @@ calculateors to compute the vorticity and Q-criterion given the velocity field.
 Installation
 ------------
 
-* Clone the git repository to a location on your :code:`PYTHONPATH`
+* Clone the git repository to a location on your :code:`${PYTHONPATH}`
 * Test module can be imported by python interpreter: :code:`import Py4Incompact3D`
 
 Documentation
@@ -22,7 +22,8 @@ Documentation
 
 Documentation of functions can be found under `doc/build/latex/`.
 
-To regenerate documentation, from the project root type `make -C doc/ latexpdf` (requires sphinx).
+To regenerate documentation, from the project root type :code:`make -C doc/ latexpdf` (requires
+sphinx).
 
 Contributing
 ------------
