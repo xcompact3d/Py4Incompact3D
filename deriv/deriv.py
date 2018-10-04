@@ -110,13 +110,51 @@ def compute_rhs_1(mesh, field, axis):
     # Setup
     rhs = np.zeros([field.shape[0], field.shape[1], field.shape[2]])
 
-    if axis in field.vidx:
-        # npaire = 0
-        pass
+    if axis == 0:
+        invdx = 1.0 / mesh.dx
+    elif axis == 1:
+        invdx = 1.0 / mesh.dy
     else:
-        # npaire = 1
-        pass
-    
+        invdx = 1.0 / mesh.dz
+
+    a = mesh.a * invdx / 2.0
+    b = mesh.b * invdx / 4.0
+
+    for i in range(field.shape[0]):
+        for j in range(field.shape[1]):
+            #BCs @ k = 0
+            if axis in field.vidx:
+                # npaire = 0
+                k = 0
+                rhs[i][j][k] = 0.0
+                k = 1
+                rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
+                               + b * (field[i][j][k + 2] - field[i][j][k])
+            else:
+                #npaire = 1
+                k = 0
+                rhs[i][j][k] = 2 * (a * field[i][j][k + 1] + b * field[i][j][k + 2])
+                k = 1
+                rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
+                               + b * (field[i][j][k + 2] + field[i][j][k])
+
+            # Internal nodes
+            for k in range(2, field.shape[2] - 2):
+                rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
+                               + b * (field[i][j][k + 2] - field[i][j][k - 2])
+
+            # BCs @ k = n
+            k = field.shape[2] - 2
+            rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
+                           + b * (field[i][j][k] - field[i][j][k - 2])
+            k = field.shape[2] - 1
+            if axis in field.vidx:
+                # npaire = 0
+                rhs[i][j][k] = 0.0
+            else:
+                # npaire = 1
+                rhs[i][j][k] = 2 * (a * field[i][j][k - 1] + b * field[i][j][k - 2])
+
     return rhs
 
 def compute_rhs_2(mesh, field, axis):
