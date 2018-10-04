@@ -7,9 +7,9 @@
 ;; Created: Wed Oct  3 14:03:18 2018 (+0100)
 ;; Version: 
 ;; Package-Requires: ()
-;; Last-Updated: Wed Oct  3 14:04:42 2018 (+0100)
+;; Last-Updated: Thu Oct  4 16:33:50 2018 (+0100)
 ;;           By: Paul Bartholomew
-;;     Update #: 2
+;;     Update #: 3
 ;; URL: 
 ;; Doc URL: 
 ;; Keywords: 
@@ -31,7 +31,8 @@
 ;;; Code:
 
 ((nil . ((indent-tabs-mode . nil)
-				 (python-indent-offset . 4))))
+				 (python-indent-offset . 4)
+				 (js-indent-level . 2))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; .dir-locals.el ends here
