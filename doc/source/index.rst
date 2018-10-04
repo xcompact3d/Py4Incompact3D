@@ -15,9 +15,20 @@ Welcome to Py4Incompact3D's documentation!
 API
 ===
 
+Postprocess
+-----------
+
 .. automodule:: Py4Incompact3D.postprocess.postprocess
     :members:
+
+Mesh
+----
+
 .. automodule:: Py4Incompact3D.postprocess.mesh
     :members:
+
+Derivatives
+-----------
+
 .. automodule:: Py4Incompact3D.deriv.deriv
     :members:
