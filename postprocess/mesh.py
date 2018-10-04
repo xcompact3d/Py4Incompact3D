@@ -9,7 +9,6 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.interpolate import griddata
@@ -37,3 +36,16 @@ class Mesh():
         self.BCy = properties["BCy"]
         self.BCz = properties["BCz"]
 
+        # Once we know the mesh layout we can set the derivative variables
+        self.compute_derivvars()
+
+    def compute_derivvars(self):
+        """ Compute variables required by derivative functions. """
+
+        self.dx = self.Lx / float(self.Nx)
+        self.dy = self.Ly / float(self.Ny) # XXX This will not be correct for stretched grids
+        self.dz = self.Lz / float(self.Nz)
+
+        self.alpha = 1.0 / 3.0
+        self.a = 14.0 / 9.0
+        self.b = 1.0 / 9.0
