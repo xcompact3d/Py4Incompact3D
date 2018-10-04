@@ -163,4 +163,4 @@ class InputReader():
         json_dict = self._parseJSON(input_file)
 
         mesh = self._build_mesh(json_dict["mesh"])
-        return postprocess
+        return mesh
