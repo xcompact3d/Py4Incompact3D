@@ -48,6 +48,50 @@ def tdma(a, b, c, rhs):
 
     return rhs
 
+def tdma_periodic(a, b, c, rhs):
+    """ Periodic form of Tri-Diagonal Matrix Algorithm.
+
+    Solves periodic tri-diagonal matrices using TDMA where the matrices are of the form
+    [b0   c0           c1
+     a1   b1 c1
+          a2 b2   c2
+
+             an-2 bn-2 cn-2
+     cn-1         an-1 bn-1]
+
+    :param a: The `left' coefficients.
+    :param b: The diagonal coefficients. (All ones?)
+    :param c: The 'right' coefficients.
+    :param rhs: The right-hand side vector.
+
+    :type a: numpy.ndarray
+    :type b: numpy.ndarray
+    :type c: numpy.ndarray
+    :type rhs: numpy.ndarray
+
+    :returns: rhs -- the rhs vector overwritten with derivatives.
+    :rtype: numpy.ndarray
+    """
+
+    # Setup utility vectors u, v
+    u = np.zeros(rhs.shape[2])
+    v = np.zeros(rhs.shape[2])
+    u[0] = -b[0]
+    u[-1] = c[-1]
+    v[0] = 1.0
+    v[-1] = -a[0] / b[0]
+
+    # Modify the diagonal -> A'
+    b[-1] += (a[0] / b[0]) * c[-1]
+    b[0] *= 2
+
+    # Solve A'y=rhs, A'q=u
+    rhs = tdma(a, b, c, rhs)
+    u = tdma(a, b, c, u)
+
+    # Compute solution x = y - v^T y / (1 + v^T q) q
+    return rhs - np.dot(v, rhs) / (1 + np.dot(v, u)) * u
+
 def compute_rhs_0(mesh, field, axis):
     """ Compute the rhs for the derivative for periodic BCs.
 
