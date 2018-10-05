@@ -92,6 +92,41 @@ def tdma_periodic(a, b, c, rhs):
     # Compute solution x = y - v^T y / (1 + v^T q) q
     return rhs - np.dot(v, rhs) / (1 + np.dot(v, u)) * u
 
+def compute_deriv(rhs, bc):
+    """ Compute the derivative by calling to TDMA.
+
+    :param rhs: The rhs vector.
+    :param bc: The boundary condition for the axis.
+
+    :type rhs: numpy.ndarray
+    :type bc: int
+
+    :returns: The derivative
+    :rtype: numpy.ndarray"""
+
+    a = (1.0 / 3.0) * np.ones(rhs.shape[2])
+    b = np.ones(rhs.shape[2])
+    c = a
+
+    if bc == 0:
+        # Periodic
+        return tdma_periodic(a, b, c, rhs)
+    else:
+        if bc == 1:
+            # Free slip
+            a[-1] = 0.0
+            c[0] = 0.0
+        else:
+            #Dirichlet
+            c[0] = 2.0
+            a[1] = 0.25
+            c[1] = 0.25
+            a[-2] = 0.25
+            c[-2] = 0.25
+            a[-1] = 1.0
+            b[-1] = 2.0
+        return tdma(a, b, c, rhs)
+
 def compute_rhs_0(mesh, field, axis):
     """ Compute the rhs for the derivative for periodic BCs.
 
@@ -310,6 +345,13 @@ def deriv(postproc, mesh, phi, axis):
     postproc.fields[phi] = np.swapaxes(postproc.fields[phi], axis, 2)
 
     rhs = compute_rhs(mesh, postproc.fields[phi])
+    if axis == 0:
+        bc = mesh.BCx
+    elif axis == 1:
+        bc = mesh.BCy
+    else:
+        bc = mesh.BCz
+    rhs = compute_deriv(rhs, bc)
 
     # Transpose back to normal orientation and return
     postproc.fields[phi] = np.swapaxes(postproc.fields[phi], 2, axis)
