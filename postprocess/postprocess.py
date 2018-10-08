@@ -28,7 +28,8 @@ class Postprocess():
 
         self.input_reader=InputReader()
         self.input_file = input_file
-        self.fields = self._process_input()
+        self.fields, self.mesh = self._process_input()
 
     def _process_input(self):
         return self.input_reader.read(self.input_file)
+
