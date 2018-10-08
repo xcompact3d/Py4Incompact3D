@@ -9,22 +9,51 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from .mesh import Mesh
-import copy
 import numpy as np
 
-class Fields():
+class Field():
 
-    def __init__(self, instance_dictionary, mesh):
+    def __init__(self, instance_dictionary):
 
         super().__init__()
 
+        self.name = instance_dictionary["name"]
         self.description = instance_dictionary["description"]
 
         properties = instance_dictionary["properties"]
-        self.type_string = type_string
+        self.file_root = properties["filename"]
+        self.direction = properties["direction"]
 
-        type_map = {
-            "statistics": self._statistics,
-            "snapshot": self._snapshot,
-        }
+    def load(self, time=None):
+        """
+        """
+
+        if time == None:
+            load_times = [""]
+        elif isinstance(time, int):
+            load_times = [time]
+        elif isinstance(time, list):
+            load_times = time
+        else:
+            raise ValueError
+
+        data = {}
+        for t in load_times:
+            zeros = ""
+            read_success = False
+            while (not read_success) and (len(zeros) < 10):
+                try:
+                    filename = self.file_root + zeros + str(t)
+                except:
+                    zeros += "0"
+                else:
+                    read_success = True
+                    
+            if not read_success:
+                raise RuntimeError
+
+            with open(filename, "rb") as bindat:
+                data[t] = np.fromfile(bindat, np.float64)
+
+        return data
+        

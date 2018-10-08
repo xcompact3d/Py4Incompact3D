@@ -10,6 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 from .mesh import Mesh
+from .fields import Field
 import json
 
 class InputReader():
@@ -43,7 +44,7 @@ class InputReader():
 
         self._data_properties = {
             "filename" : str,     # What is the root filename of the object
-            "direction" : int     # What direction does this field point? 0,1,2->x,y,z; -1->scalar
+            "direction" : list     # What direction does this field point? 0,1,2->x,y,z; -1->scalar
         }
 
     def _parseJSON(self, filename):
@@ -98,6 +99,9 @@ class InputReader():
             raise KeyError("'description' key is required")
 
         validated["description"] = json_dict["description"]
+
+        # Just take the object name
+        validated["name"] = json_dict["name"]
 
         # validate the properties dictionary
         if "properties" not in json_dict:
