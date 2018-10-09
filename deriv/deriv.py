@@ -7,7 +7,7 @@
 
 import numpy as np
 
-def tdma(a, b, c, rhs):
+def tdma(a, b, c, rhs, overwrite=True):
     """ The Tri-Diagonal Matrix Algorithm.
 
     Solves tri-diagonal matrices using TDMA where the matrices are of the form
@@ -22,31 +22,40 @@ def tdma(a, b, c, rhs):
     :param b: The diagonal coefficients. (All ones?)
     :param c: The 'right' coefficients.
     :param rhs: The right-hand side vector.
+    :param overwrite: Should the rhs and diagonal coefficient (b) arrays be overwritten?
 
     :type a: numpy.ndarray
     :type b: numpy.ndarray
     :type c: numpy.ndarray
     :type rhs: numpy.ndarray
+    :type overwrite: bool
 
     :returns: rhs -- the rhs vector overwritten with derivatives.
     :rtype: numpy.ndarray
     """
-    
-    for i in range(rhs.shape[0]):
-        for j in range(rhs.shape[1]):
+
+    if overwrite:
+        bloc = b
+        rhsloc = rhs
+    else: # Creat local copies
+        bloc = np.copy(b)
+        rhsloc = np.copy(rhs)
+        
+    for i in range(rhsloc.shape[0]):
+        for j in range(rhsloc.shape[1]):
             # Forward elimination
-            for k in range(1, rhs.shape[2]):
-                m = a[k] / b[k - 1]
-                b[k] -= m * c[k - 1]
-                rhs[i][j][k] -= m * c[k - 1]
+            for k in range(1, rhsloc.shape[2]):
+                m = a[k] / bloc[k - 1]
+                bloc[k] -= m * c[k - 1]
+                rhsloc[i][j][k] -= m * rhsloc[i][j][k - 1]
 
             # Backward substituion
-            rhs[i][j][-1] /= b[-1]
-            for k in range(rhs.shape[2] - 2, -1, -1):
-                rhs[i][j][k] -= c[k] * rhs[i][j][k + 1]
-                rhs[i][j][k] /= b[k]
+            rhsloc[i][j][-1] /= bloc[-1]
+            for k in range(rhsloc.shape[2] - 2, -1, -1):
+                rhsloc[i][j][k] -= c[k] * rhsloc[i][j][k + 1]
+                rhsloc[i][j][k] /= bloc[k]
 
-    return rhs
+    return rhsloc
 
 def tdma_periodic(a, b, c, rhs):
     """ Periodic form of Tri-Diagonal Matrix Algorithm.
@@ -84,11 +93,12 @@ def tdma_periodic(a, b, c, rhs):
     # Modify the diagonal -> A'
     b[-1] += (a[0] / b[0]) * c[-1]
     b[0] *= 2
+    assert(min(b**2) > 0)
 
     # Solve A'y=rhs, A'q=u
-    assert(min(b**2) > 0)
-    rhs = tdma(a, b, c, rhs)
-    u = tdma(a, b, c, np.array([[u]])) # TDMA expects a 3D rhs 'vector'
+    # XXX don't overwrite the coefficient arrays!
+    rhs = tdma(a, b, c, rhs, False)
+    u = tdma(a, b, c, np.array([[u]]), False) # TDMA expects a 3D rhs 'vector'
     u = u[0][0]
 
     # Compute solution x = y - v^T y / (1 + v^T q) q
