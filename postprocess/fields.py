@@ -9,22 +9,70 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from .mesh import Mesh
-import copy
 import numpy as np
 
-class Fields():
+from Py4Incompact3D.io.bin3d import read_i3d_data
 
-    def __init__(self, instance_dictionary, mesh):
+class Field():
+
+    def __init__(self, instance_dictionary):
 
         super().__init__()
 
+        self.name = instance_dictionary["name"]
         self.description = instance_dictionary["description"]
 
         properties = instance_dictionary["properties"]
-        self.type_string = type_string
+        self.file_root = properties["filename"]
+        self.direction = properties["direction"]
+        if "precision" in "properties":
+            if properties["precision"] == "single":
+                self.dtype = np.float32
+            else:
+                self.dtype = np.float64
+        else: # Default to double precision
+            self.dtype = np.float64
 
-        type_map = {
-            "statistics": self._statistics,
-            "snapshot": self._snapshot,
-        }
+        self.data = {}
+
+    def load(self, mesh, time=-1):
+        """ Loads a datafield timeseries.
+
+        :param mesh: The mesh the data is stored on.
+        :param time: Time(s) to load data, default value -1 means load all times.
+
+        :type mesh: Py4Incompact3D.postprocess.mesh.Mesh
+        :type time: int or list of int
+        """
+
+        # Find all files to load
+        if time == -1:
+            load_times = range(1000) # This corresponds to 4-digit timestamp
+        elif isinstance(time, int):
+            load_times = [time]
+        elif isinstance(time, list):
+            load_times = time
+        else:
+            raise ValueError
+
+        for t in load_times:
+            zeros = ""
+            read_success = False
+            while (not read_success) and (len(zeros) < 10):
+                try:
+                    filename = self.file_root + zeros + str(t)
+                    self.data[t] = read_i3d_data(filename,
+                                                 mesh.Nx, mesh.Ny, mesh.Nz,
+                                                 self.dtype)
+                except:
+                    zeros += "0"
+                else:
+                    read_success = True
+                    
+            if not read_success:
+                raise RuntimeError
+
+    def clear(self):
+        """ Cleanup data. """
+        self.data= {}
+        

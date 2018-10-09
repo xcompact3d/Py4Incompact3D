@@ -24,11 +24,36 @@ class Postprocess():
         self: post - an instantiated post object
     """
 
-    def __init__(self,input_file):
+    def __init__(self, input_file):
 
         self.input_reader=InputReader()
         self.input_file = input_file
-        self.fields = self._process_input()
+        self.fields, self.mesh = self._process_input()
 
     def _process_input(self):
         return self.input_reader.read(self.input_file)
+
+    def load(self, **kwargs):
+        """ Load data.
+        """
+
+        load_vars = self.fields.keys()
+        time = -1
+        for arg, val in kwargs.items():
+            if "vars" == arg:
+                load_vars = val
+            elif "time" == arg:
+                time = val
+
+        for var in load_vars:
+            self.fields[var].load(self.mesh, time)
+
+    def clear_data(self, vars="all"):
+        """ Clear stored data fields. """
+
+        if vars == "all":
+            vars = self.fields.keys()
+
+        for var in vars:
+            self.fields[var].clear()
+
