@@ -39,15 +39,15 @@ class Field():
         """ Loads a datafield timeseries.
 
         :param mesh: The mesh the data is stored on.
-        :param time: Time(s) to load data.
+        :param time: Time(s) to load data, default value -1 means load all times.
 
         :type mesh: Py4Incompact3D.postprocess.mesh.Mesh
         :type time: int or list of int
         """
 
-
-        if time == None:
-            load_times = [""]
+        # Find all files to load
+        if time == -1:
+            load_times = range(1000) # This corresponds to 4-digit timestamp
         elif isinstance(time, int):
             load_times = [time]
         elif isinstance(time, list):
@@ -61,6 +61,9 @@ class Field():
             while (not read_success) and (len(zeros) < 10):
                 try:
                     filename = self.file_root + zeros + str(t)
+                    self.data[t] = read_i3d_data(filename,
+                                                 mesh.Nx, mesh.Ny, mesh.Nz,
+                                                 self.dtype)
                 except:
                     zeros += "0"
                 else:
@@ -68,10 +71,6 @@ class Field():
                     
             if not read_success:
                 raise RuntimeError
-
-            self.data[t] = read_i3d_data(filename,
-                                         mesh.Nx, mesh.Ny, mesh.Nz,
-                                         self.dtype)
 
     def clear(self):
         """ Cleanup data. """
