@@ -25,6 +25,13 @@ class Field():
         properties = instance_dictionary["properties"]
         self.file_root = properties["filename"]
         self.direction = properties["direction"]
+        if "precision" in "properties":
+            if properties["precision"] == "single":
+                self.dtype = np.float32
+            else:
+                self.dtype = np.float64
+        else: # Default to double precision
+            self.dtype = np.float64
 
         self.data = {}
 
