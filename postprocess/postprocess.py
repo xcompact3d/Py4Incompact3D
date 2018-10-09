@@ -33,3 +33,18 @@ class Postprocess():
     def _process_input(self):
         return self.input_reader.read(self.input_file)
 
+    def load(self, **kwargs):
+        """ Load data.
+        """
+
+        load_vars = self.fields.keys()
+        time = -1
+        for arg, val in kwargs.items():
+            if "vars" == arg:
+                load_vars = val
+            elif "time" == arg:
+                time = val
+
+        for var in load_vars:
+            self.fields[var].load(self.mesh, time)
+
