@@ -24,7 +24,7 @@ class Postprocess():
         self: post - an instantiated post object
     """
 
-    def __init__(self,input_file):
+    def __init__(self, input_file):
 
         self.input_reader=InputReader()
         self.input_file = input_file
@@ -47,4 +47,13 @@ class Postprocess():
 
         for var in load_vars:
             self.fields[var].load(self.mesh, time)
+
+    def clear_data(self, vars="all"):
+        """ Clear stored data fields. """
+
+        if vars == "all":
+            vars = self.fields.keys()
+
+        for var in vars:
+            self.fields[var].clear()
 
