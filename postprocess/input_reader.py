@@ -10,6 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 from .mesh import Mesh
+from .fields import Field
 import json
 
 class InputReader():
@@ -27,7 +28,7 @@ class InputReader():
     """
     def __init__(self):
 
-        self._validObjects=["mesh"]
+        self._validObjects=["mesh", "data"]
 
         self._mesh_properties = {
             "Nx" : int,
@@ -41,7 +42,10 @@ class InputReader():
             "BCz": int
         }
 
-
+        self._data_properties = {
+            "filename" : str,     # What is the root filename of the object
+            "direction" : list     # What direction does this field point? 0,1,2->x,y,z; -1->scalar
+        }
 
     def _parseJSON(self, filename):
         """
@@ -96,6 +100,9 @@ class InputReader():
 
         validated["description"] = json_dict["description"]
 
+        # Just take the object name
+        validated["name"] = json_dict["name"]
+
         # validate the properties dictionary
         if "properties" not in json_dict:
             raise KeyError("'properties' key is required")
@@ -149,6 +156,49 @@ class InputReader():
         propertyDict = self._validateJSON(json_dict, self._mesh_properties)
         return Mesh(propertyDict)
 
+    def _find_datakeys(self, json_dict):
+        """ Find keys corresponding to field data.
+
+        Searches through the provided json dictionary for fields of type 'data' and returns this as
+        a list.
+
+        :param json_dict: Input dictionary
+        :type json_dict: dict
+
+        :returns: data_keys -- a list of keys for data objects in the json file.
+        :rtype: list
+        """
+
+        data_keys = []
+        ignore_keys = ["type", "name", "description"]
+
+        for key in json_dict.keys():
+            if key in ignore_keys:
+                continue
+
+            # validate the object type
+            if "type" not in json_dict[key]:
+                raise KeyError("'type' key is required")
+
+            if json_dict[key]["type"] not in self._validObjects:
+                raise ValueError("'type' must be one of {}".format(", ".join(self._validObjects)))
+
+            if json_dict[key]["type"] == "data":
+                data_keys.append(key)
+
+        return data_keys
+
+    def _build_field(self, json_dict):
+        """ Constructs a variable field.
+
+        :param json_dict: Input dictionary
+        :type json_dict: dict
+
+        :returns: field -- an instantiated Field object
+        :rtype: Field
+        """
+        propertyDict = self._validateJSON(json_dict, self._data_properties)
+        return Field(propertyDict)
 
     def read(self, input_file):
         """
@@ -163,4 +213,8 @@ class InputReader():
         json_dict = self._parseJSON(input_file)
 
         mesh = self._build_mesh(json_dict["mesh"])
-        return mesh
+        data_keys = self._find_datakeys(json_dict)
+        fields = {}
+        for key in data_keys:
+            fields[key] = self._build_field(json_dict[key])
+        return fields, mesh
