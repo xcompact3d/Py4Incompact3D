@@ -175,15 +175,9 @@ class InputReader():
         for key in json_dict.keys():
             if key in ignore_keys:
                 continue
-
-            # validate the object type
-            if "type" not in json_dict[key]:
-                raise KeyError("'type' key is required")
-
-            if json_dict[key]["type"] not in self._validObjects:
-                raise ValueError("'type' must be one of {}".format(", ".join(self._validObjects)))
-
-            if json_dict[key]["type"] == "data":
+            elif json_dict[key]["type"] == "data":
+                msg = "Found data field: " + key
+                print(msg)
                 data_keys.append(key)
 
         return data_keys
