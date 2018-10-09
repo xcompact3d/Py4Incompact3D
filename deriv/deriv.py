@@ -43,8 +43,8 @@ def tdma(a, b, c, rhs):
             # Backward substituion
             rhs[i][j][-1] /= b[-1]
             for k in range(rhs.shape[2] - 2, -1, -1):
-                rhs[i][j][k] -= c[k] * rhs[k + 1]
-                rhs[i][k][k] /= b[k]
+                rhs[i][j][k] -= c[k] * rhs[i][j][k + 1]
+                rhs[i][j][k] /= b[k]
 
     return rhs
 
@@ -86,11 +86,16 @@ def tdma_periodic(a, b, c, rhs):
     b[0] *= 2
 
     # Solve A'y=rhs, A'q=u
+    assert(min(b**2) > 0)
     rhs = tdma(a, b, c, rhs)
-    u = tdma(a, b, c, u)
+    u = tdma(a, b, c, np.array([[u]])) # TDMA expects a 3D rhs 'vector'
+    u = u[0][0]
 
     # Compute solution x = y - v^T y / (1 + v^T q) q
-    return rhs - np.dot(v, rhs) / (1 + np.dot(v, u)) * u
+    for i in range(rhs.shape[0]):
+        for j in range(rhs.shape[1]):
+            rhs[i][j] -= np.dot(v, rhs[i][j]) / (1 + np.dot(v, u)) * u
+    return rhs
 
 def compute_deriv(rhs, bc):
     """ Compute the derivative by calling to TDMA.
@@ -125,6 +130,7 @@ def compute_deriv(rhs, bc):
             c[-2] = 0.25
             a[-1] = 1.0
             b[-1] = 2.0
+        assert(min(b**2) > 0)
         return tdma(a, b, c, rhs)
 
 def compute_rhs_0(mesh, field, axis):
