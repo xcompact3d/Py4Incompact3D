@@ -40,7 +40,7 @@ def tdma(a, b, c, rhs, overwrite=True):
     else: # Creat local copies
         bloc = np.copy(b)
         rhsloc = np.copy(rhs)
-        
+
     for i in range(rhsloc.shape[0]):
         for j in range(rhsloc.shape[1]):
             # Forward elimination
@@ -177,7 +177,7 @@ def compute_rhs_0(mesh, field, axis):
             for k in range(field.shape[2] - 2):
                 rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
                                + b * (field[i][j][k + 2] - field[i][j][k - 2])
-                
+
             # BCs @ k = n
             k = field.shape[2] - 2
             rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
@@ -290,12 +290,12 @@ def compute_rhs_2(mesh, field, axis):
                            * (0.5 * invdx)
             k = 1
             rhs[i][j][k] = 1.5 * (field[i][j][k + 1] - field[i][j][k - 1]) * (0.5 * invdx)
-            
+
             # Internal nodes
             for k in range(2, field.shape[2] - 2):
                 rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
                                + b * (field[i][j][k + 2] - field[i][j][k - 2])
-                
+
             # BCs @ k = n
             k = field.shape[2] - 2
             rhs[i][j][k] = 1.5 * (field[i][j][k + 1] - field[i][j][k - 1]) * (0.5 * invdx)
