@@ -11,6 +11,8 @@
 
 import numpy as np
 
+from Py4Incompact3D.io.bin3d import read_i3d_data
+
 class Field():
 
     def __init__(self, instance_dictionary):
@@ -24,9 +26,18 @@ class Field():
         self.file_root = properties["filename"]
         self.direction = properties["direction"]
 
-    def load(self, time=None):
+        self.data = {}
+
+    def load(self, mesh, time=-1):
+        """ Loads a datafield timeseries.
+
+        :param mesh: The mesh the data is stored on.
+        :param time: Time(s) to load data.
+
+        :type mesh: Py4Incompact3D.postprocess.mesh.Mesh
+        :type time: int or list of int
         """
-        """
+
 
         if time == None:
             load_times = [""]
@@ -37,7 +48,6 @@ class Field():
         else:
             raise ValueError
 
-        data = {}
         for t in load_times:
             zeros = ""
             read_success = False
@@ -52,8 +62,11 @@ class Field():
             if not read_success:
                 raise RuntimeError
 
-            with open(filename, "rb") as bindat:
-                data[t] = np.fromfile(bindat, np.float64)
+            self.data[t] = read_i3d_data(filename,
+                                         mesh.Nx, mesh.Ny, mesh.Nz,
+                                         self.dtype)
 
-        return data
+    def clear(self):
+        """ Cleanup data. """
+        self.data= {}
         
