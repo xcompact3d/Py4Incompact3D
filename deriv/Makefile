@@ -12,4 +12,4 @@ test:
 	make -C ../ test
 
 clean:
-	rm tdma.so tdma.pyf
+	rm *.so tdma.pyf
