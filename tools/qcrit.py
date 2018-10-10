@@ -5,6 +5,8 @@
 .. moduleauthor:: Paul Bartholomew <ptb08@ic.ac.uk>
 """
 
+import numpy as np
+
 from Py4Incompact3D.deriv.deriv import deriv
 from Py4Incompact3D.postprocess.fields import Field
 
@@ -29,15 +31,14 @@ def calc_qcrit(postprocess, time=-1):
         raise RuntimeError
 
     for t in time:
-        # Compute strain-rate tensor
-        S = [[0, 0, 0],
-             [0, 0, 0],
-             [0, 0, 0]]
+        # Compute velocity-gradient tensor
+        gradu = [[0, 0, 0],
+                 [0, 0, 0],
+                 [0, 0, 0]]
         for vel in ["ux", "uy", "uz"]:
             i = postprocess.fields[vel].direction[0]
             for j in range(3):
-                print(i, j)
-                S[i][j] = 0.5 * deriv(postprocess, vel, j, t)
+                gradu[i][j] = 0.5 * deriv(postprocess, vel, j, t)
 
         # Extract vorticity tensor
         vort = [[0, 0, 0],
@@ -49,8 +50,19 @@ def calc_qcrit(postprocess, time=-1):
                 name = "vort" + directions[i] + directions[j]
                 vort[i][j] = postprocess.fields[name].data[t]
 
+        # Construct strain-rate tensor
+        S = [[0, 0, 0],
+             [0, 0, 0],
+             [0, 0, 0]]
+        for i in range(3):
+            for j in range(3):
+                S[i][j] = 0.5 * (gradu[i][j] + gradu[j][i])
+
         # Compute Q-criterion
-        q = np.zeros([postprocess.mesh.nx, postprocess.mesh.ny, postprocess.mesh.nz],
+        nx = postprocess.fields["ux"].data[t].shape[0]
+        ny = postprocess.fields["ux"].data[t].shape[1]
+        nz = postprocess.fields["ux"].data[t].shape[2]
+        q = np.zeros([nx, ny, nz],
                      dtype=postprocess.fields["ux"].dtype)
         for i in range(3):
             for j in range(3):

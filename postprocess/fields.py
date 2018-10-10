@@ -86,6 +86,31 @@ class Field():
             if not read_success:
                 raise RuntimeError
 
+    def write(self, time, timestamp_len=3):
+        """"""
+
+        if time == -1:
+            write_times = self.data.keys()
+        elif isinstance(time, int):
+            write_times = [time]
+        elif isinstance(time, list):
+            write_times = time
+        else:
+            raise ValueError
+
+        for t in write_times:
+            timestamp = str(t)
+            timestamp = "0" * (timestamp_len - len(timestamp)) + timestamp
+            filename = self.file_root + timestamp
+
+            # Dump to raw binary, numpy writes in 'C' order so we need to shuffle our
+            # array so that 'C' order looks like 'Fortran' order...
+            self.data[t] = np.swapaxes(self.data[t], 0, 2)
+            self.data[t].tofile(filename)
+
+            # Shuffle back to 'C' order incase we want to keep working with the array
+            self.data[t] = np.swapaxes(self.data[t], 2, 0)
+
     def clear(self):
         """ Cleanup data. """
         self.data= {}
