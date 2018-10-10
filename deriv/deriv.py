@@ -7,7 +7,9 @@
 
 import numpy as np
 
-def tdma(a, b, c, rhs):
+import Py4Incompact3D.deriv.tdma as tdma_f
+
+def tdma(a, b, c, rhs, overwrite=True):
     """ The Tri-Diagonal Matrix Algorithm.
 
     Solves tri-diagonal matrices using TDMA where the matrices are of the form
@@ -22,31 +24,41 @@ def tdma(a, b, c, rhs):
     :param b: The diagonal coefficients. (All ones?)
     :param c: The 'right' coefficients.
     :param rhs: The right-hand side vector.
+    :param overwrite: Should the rhs and diagonal coefficient (b) arrays be overwritten?
 
     :type a: numpy.ndarray
     :type b: numpy.ndarray
     :type c: numpy.ndarray
     :type rhs: numpy.ndarray
+    :type overwrite: bool
 
     :returns: rhs -- the rhs vector overwritten with derivatives.
     :rtype: numpy.ndarray
     """
-    
-    for i in range(rhs.shape[0]):
-        for j in range(rhs.shape[1]):
-            # Forward elimination
-            for k in range(1, rhs.shape[2]):
-                m = a[k] / b[k - 1]
-                b[k] -= m * c[k - 1]
-                rhs[i][j][k] -= m * c[k - 1]
 
-            # Backward substituion
-            rhs[i][j][-1] /= b[-1]
-            for k in range(rhs.shape[2] - 2, -1, -1):
-                rhs[i][j][k] -= c[k] * rhs[k + 1]
-                rhs[i][k][k] /= b[k]
+    if overwrite:
+        bloc = b
+        rhsloc = rhs
+    else: # Creat local copies
+        bloc = np.copy(b)
+        rhsloc = np.copy(rhs)
 
-    return rhs
+    for i in range(rhsloc.shape[0]):
+        for j in range(rhsloc.shape[1]):
+            # # Forward elimination
+            # for k in range(1, rhsloc.shape[2]):
+            #     m = a[k] / bloc[k - 1]
+            #     bloc[k] -= m * c[k - 1]
+            #     rhsloc[i][j][k] -= m * rhsloc[i][j][k - 1]
+
+            # # Backward substituion
+            # rhsloc[i][j][-1] /= bloc[-1]
+            # for k in range(rhsloc.shape[2] - 2, -1, -1):
+            #     rhsloc[i][j][k] -= c[k] * rhsloc[i][j][k + 1]
+            #     rhsloc[i][j][k] /= bloc[k]
+            tdma_f.tdma(a, bloc, c, rhsloc[i][j], rhs.shape[2])
+
+    return rhsloc
 
 def tdma_periodic(a, b, c, rhs):
     """ Periodic form of Tri-Diagonal Matrix Algorithm.
@@ -84,13 +96,19 @@ def tdma_periodic(a, b, c, rhs):
     # Modify the diagonal -> A'
     b[-1] += (a[0] / b[0]) * c[-1]
     b[0] *= 2
+    assert(min(b**2) > 0)
 
     # Solve A'y=rhs, A'q=u
-    rhs = tdma(a, b, c, rhs)
-    u = tdma(a, b, c, u)
+    # XXX don't overwrite the coefficient arrays!
+    rhs = tdma(a, b, c, rhs, False)
+    u = tdma(a, b, c, np.array([[u]]), False) # TDMA expects a 3D rhs 'vector'
+    u = u[0][0]
 
     # Compute solution x = y - v^T y / (1 + v^T q) q
-    return rhs - np.dot(v, rhs) / (1 + np.dot(v, u)) * u
+    for i in range(rhs.shape[0]):
+        for j in range(rhs.shape[1]):
+            rhs[i][j] -= np.dot(v, rhs[i][j]) / (1 + np.dot(v, u)) * u
+    return rhs
 
 def compute_deriv(rhs, bc):
     """ Compute the derivative by calling to TDMA.
@@ -125,6 +143,7 @@ def compute_deriv(rhs, bc):
             c[-2] = 0.25
             a[-1] = 1.0
             b[-1] = 2.0
+        assert(min(b**2) > 0)
         return tdma(a, b, c, rhs)
 
 def compute_rhs_0(mesh, field, axis):
@@ -161,7 +180,7 @@ def compute_rhs_0(mesh, field, axis):
             for k in range(field.shape[2] - 2):
                 rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
                                + b * (field[i][j][k + 2] - field[i][j][k - 2])
-                
+
             # BCs @ k = n
             k = field.shape[2] - 2
             rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
@@ -172,15 +191,18 @@ def compute_rhs_0(mesh, field, axis):
 
     return rhs
 
-def compute_rhs_1(mesh, field, axis):
+def compute_rhs_1(mesh, field, axis, field_direction):
     """ Compute the rhs for the derivative for free slip BCs.
 
     :param mesh: The mesh on which derivatives are taken.
     :param field: The field for the variable who's derivative we want.
     :param axis: A number indicating direction in which to take derivative: 0=x; 1=y; 2=z.
+    :param field_direction: Indicates the direction of the field: -1=scalar; 0=x; 1=y; 2=z.
 
     :type mesh: Py4Incompact3D.postprocess.mesh.Mesh
+    :type field: np.ndarray
     :type axis: int
+    :type field_direction: list of int
 
     :returns: rhs -- the right-hand side vector.
     :rtype: numpy.ndarray
@@ -202,7 +224,7 @@ def compute_rhs_1(mesh, field, axis):
     for i in range(field.shape[0]):
         for j in range(field.shape[1]):
             #BCs @ k = 0
-            if axis in field.vidx:
+            if axis in field_direction:
                 # npaire = 0
                 k = 0
                 rhs[i][j][k] = 0.0
@@ -227,7 +249,7 @@ def compute_rhs_1(mesh, field, axis):
             rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
                            + b * (field[i][j][k] - field[i][j][k - 2])
             k = field.shape[2] - 1
-            if axis in field.vidx:
+            if axis in field_direction:
                 # npaire = 0
                 rhs[i][j][k] = 0.0
             else:
@@ -271,12 +293,12 @@ def compute_rhs_2(mesh, field, axis):
                            * (0.5 * invdx)
             k = 1
             rhs[i][j][k] = 1.5 * (field[i][j][k + 1] - field[i][j][k - 1]) * (0.5 * invdx)
-            
+
             # Internal nodes
             for k in range(2, field.shape[2] - 2):
                 rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
                                + b * (field[i][j][k + 2] - field[i][j][k - 2])
-                
+
             # BCs @ k = n
             k = field.shape[2] - 2
             rhs[i][j][k] = 1.5 * (field[i][j][k + 1] - field[i][j][k - 1]) * (0.5 * invdx)
@@ -286,74 +308,70 @@ def compute_rhs_2(mesh, field, axis):
 
     return rhs
 
-def compute_rhs(mesh, field, axis):
+def compute_rhs(postproc, field, axis, time, bc):
     """ Compute the rhs for the derivative.
 
-    :param mesh: The mesh on which derivatives are taken.
-    :param field: The field for the variable who's derivative we want.
+    :param postproc: The basic postprocessing object.
+    :param field: The name of the variable who's derivative we want.
     :param axis: A number indicating direction in which to take derivative: 0=x; 1=y; 2=z.
+    :param time: The time to compute rhs for.
+    :param bc: The boundary condition: 0=periodic; 1=free-slip; 2=Dirichlet.
 
-    :type mesh: Py4Incompact3D.postprocess.mesh.Mesh
+    :type mesh: Py4Incompact3D.postprocess.postproc.Postproc
+    :type field: str
     :type axis: int
+    :type time: int
+    :type bc: int
 
     :returns: rhs -- the right-hand side vector.
     :rtype: numpy.ndarray
     """
 
-    if axis == 0:
-        if mesh.BCx == 0:
-            return compute_rhs_0(mesh, field, axis)
-        elif mesh.BCx == 1:
-            return compute_rhs_1(mesh, field, axis)
-        else:
-            return compute_rhs_2(mesh, field, axis)
-    elif axis == 1:
-        if mesh.BCy == 0:
-            return compute_rhs_0(mesh, field, axis)
-        elif mesh.BCy == 1:
-            return compute_rhs_1(mesh, field, axis)
-        else:
-            return compute_rhs_2(mesh, field, axis)
+    mesh = postproc.mesh
+    arr = postproc.fields[field].data[time]
+    if bc == 0:
+        return compute_rhs_0(mesh, arr, axis)
+    elif bc == 1:
+        direction = postproc.fields[field].direction
+        return compute_rhs_1(mesh, arr, axis, direction)
     else:
-        if mesh.BCz == 0:
-            return compute_rhs_0(mesh, field, axis)
-        elif mesh.BCz == 1:
-            return compute_rhs_1(mesh, field, axis)
-        else:
-            return compute_rhs_2(mesh, field, axis)
+        return compute_rhs_2(mesh, arr, axis)
 
-def deriv(postproc, mesh, phi, axis):
+def deriv(postproc, phi, axis, time):
     """ Take the derivative of field 'phi' along axis.
 
     :param postproc: The basic Postprocess object.
-    :param mesh: The mesh on which derivatives are taken.
     :param phi: The name of the variable who's derivative we want.
     :param axis: A number indicating direction in which to take derivative: 0=x; 1=y; 2=z.
+    :param time: The time stamp to compute derivatives for.
 
     :type postproc: Py4Incompact3D.postprocess.postprocess.Postprocess
-    :type mesh: Py4Incompact3D.postprocess.mesh.Mesh
     :type phi: str
     :type axis: int
+    :type time: int
 
     :returns: dphidx -- the derivative
     :rtype: numpy.ndarray
     """
 
-    mesh.compute_derivvars()
+    # Ensure we have the derivative variables up to date
+    postproc.mesh.compute_derivvars()
 
     # Transpose the data to make loops more efficient
-    postproc.fields[phi] = np.swapaxes(postproc.fields[phi], axis, 2)
+    postproc.fields[phi].data[time] = np.swapaxes(postproc.fields[phi].data[time], axis, 2)
 
-    rhs = compute_rhs(mesh, postproc.fields[phi])
+    # Get boundary conditions
     if axis == 0:
-        bc = mesh.BCx
+        bc = postproc.mesh.BCx
     elif axis == 1:
-        bc = mesh.BCy
+        bc = postproc.mesh.BCy
     else:
-        bc = mesh.BCz
+        bc = postproc.mesh.BCz
+
+    # Compute RHS->derivative
+    rhs = compute_rhs(postproc, phi, axis, time, bc)
     rhs = compute_deriv(rhs, bc)
 
     # Transpose back to normal orientation and return
-    postproc.fields[phi] = np.swapaxes(postproc.fields[phi], 2, axis)
-    rhs = np.swapaxes(rhs, 2, axis)
-    return tdma(rhs)
+    postproc.fields[phi].data[time] = np.swapaxes(postproc.fields[phi].data[time], 2, axis)
+    return np.swapaxes(rhs, 2, axis)
