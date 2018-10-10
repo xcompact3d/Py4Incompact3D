@@ -7,6 +7,8 @@
 
 import numpy as np
 
+from Py4Incompact3D.deriv.tdma import tdma as tdma_c
+
 def tdma(a, b, c, rhs):
     """ The Tri-Diagonal Matrix Algorithm.
 
@@ -34,17 +36,18 @@ def tdma(a, b, c, rhs):
     
     for i in range(rhs.shape[0]):
         for j in range(rhs.shape[1]):
-            # Forward elimination
-            for k in range(1, rhs.shape[2]):
-                m = a[k] / b[k - 1]
-                b[k] -= m * c[k - 1]
-                rhs[i][j][k] -= m * c[k - 1]
+            tdma_c(a, b, c, rhs[i][j], rhs.shape[2])
+            # # Forward elimination
+            # for k in range(1, rhs.shape[2]):
+            #     m = a[k] / b[k - 1]
+            #     b[k] -= m * c[k - 1]
+            #     rhs[i][j][k] -= m * c[k - 1]
 
-            # Backward substituion
-            rhs[i][j][-1] /= b[-1]
-            for k in range(rhs.shape[2] - 2, -1, -1):
-                rhs[i][j][k] -= c[k] * rhs[k + 1]
-                rhs[i][k][k] /= b[k]
+            # # Backward substituion
+            # rhs[i][j][-1] /= b[-1]
+            # for k in range(rhs.shape[2] - 2, -1, -1):
+            #     rhs[i][j][k] -= c[k] * rhs[k + 1]
+            #     rhs[i][k][k] /= b[k]
 
     return rhs
 
