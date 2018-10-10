@@ -41,7 +41,8 @@ class Field():
         :param nx: The mesh x resolution.
         :param ny: The mesh y resolution.
         :param nz: The mesh z resolution.
-        :param dtype: """
+        :param dtype:
+        """
         
         N = nx * ny * nz
         with open(filename, "rb") as bindat:
@@ -76,9 +77,7 @@ class Field():
             while (not read_success) and (len(zeros) < 10):
                 try:
                     filename = self.file_root + zeros + str(t)
-                    self.data[t] = read_i3d_data(filename,
-                                                 mesh.Nx, mesh.Ny, mesh.Nz,
-                                                 self.dtype)
+                    self.data[t] = self._read(filename, mesh.Nx, mesh.Ny, mesh.Nz, self.dtype)
                 except:
                     zeros += "0"
                 else:
