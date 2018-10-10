@@ -7,6 +7,8 @@
 
 import numpy as np
 
+from Py4Incompact3D.deriv.tdma import tdma as tdma_c
+
 def tdma(a, b, c, rhs, overwrite=True):
     """ The Tri-Diagonal Matrix Algorithm.
 
@@ -43,17 +45,18 @@ def tdma(a, b, c, rhs, overwrite=True):
 
     for i in range(rhsloc.shape[0]):
         for j in range(rhsloc.shape[1]):
-            # Forward elimination
-            for k in range(1, rhsloc.shape[2]):
-                m = a[k] / bloc[k - 1]
-                bloc[k] -= m * c[k - 1]
-                rhsloc[i][j][k] -= m * rhsloc[i][j][k - 1]
+            tdma_c(a, bloc, c, rhsloc[i][j], rhs.shape[2])
+            # # Forward elimination
+            # for k in range(1, rhsloc.shape[2]):
+            #     m = a[k] / bloc[k - 1]
+            #     bloc[k] -= m * c[k - 1]
+            #     rhsloc[i][j][k] -= m * rhsloc[i][j][k - 1]
 
-            # Backward substituion
-            rhsloc[i][j][-1] /= bloc[-1]
-            for k in range(rhsloc.shape[2] - 2, -1, -1):
-                rhsloc[i][j][k] -= c[k] * rhsloc[i][j][k + 1]
-                rhsloc[i][j][k] /= bloc[k]
+            # # Backward substituion
+            # rhsloc[i][j][-1] /= bloc[-1]
+            # for k in range(rhsloc.shape[2] - 2, -1, -1):
+            #     rhsloc[i][j][k] -= c[k] * rhsloc[i][j][k + 1]
+            #     rhsloc[i][j][k] /= bloc[k]
 
     return rhsloc
 
