@@ -30,7 +30,9 @@ def calc_qcrit(postprocess, time=-1):
 
     for t in time:
         # Compute strain-rate tensor
-        S = np.zeros((3, 3))
+        S = [[0, 0, 0],
+             [0, 0, 0],
+             [0, 0, 0]]
         for vel in ["ux", "uy", "uz"]:
             i = postprocess.fields[vel].direction[0]
             for j in range(3):
