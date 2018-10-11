@@ -96,7 +96,6 @@ def tdma_periodic(a, b, c, rhs):
     # Modify the diagonal -> A'
     b[-1] += (a[0] / b[0]) * c[-1]
     b[0] *= 2
-    assert(min(b**2) > 0)
 
     # Solve A'y=rhs, A'q=u
     # XXX don't overwrite the coefficient arrays!
@@ -110,14 +109,16 @@ def tdma_periodic(a, b, c, rhs):
             rhs[i][j] -= np.dot(v, rhs[i][j]) / (1 + np.dot(v, u)) * u
     return rhs
 
-def compute_deriv(rhs, bc):
+def compute_deriv(rhs, bc, npaire):
     """ Compute the derivative by calling to TDMA.
 
     :param rhs: The rhs vector.
     :param bc: The boundary condition for the axis.
+    :param npaire: Does the field not 'point' in the same direction as the derivative?
 
     :type rhs: numpy.ndarray
     :type bc: int
+    :type npaire: bool
 
     :returns: The derivative
     :rtype: numpy.ndarray"""
@@ -132,8 +133,14 @@ def compute_deriv(rhs, bc):
     else:
         if bc == 1:
             # Free slip
-            a[-1] = 0.0
-            c[0] = 0.0
+            if npaire:
+                # 'even'
+                a[-1] = 0.0
+                c[0] = 0.0
+            else:
+                # 'odd'
+                a[-1] *= 2
+                c[0] *= 2
         else:
             #Dirichlet
             c[0] = 2.0
@@ -143,7 +150,6 @@ def compute_deriv(rhs, bc):
             c[-2] = 0.25
             a[-1] = 1.0
             b[-1] = 2.0
-        assert(min(b**2) > 0)
         return tdma(a, b, c, rhs)
 
 def compute_rhs_0(mesh, field, axis):
@@ -224,15 +230,15 @@ def compute_rhs_1(mesh, field, axis, field_direction):
     for i in range(field.shape[0]):
         for j in range(field.shape[1]):
             #BCs @ k = 0
-            if axis in field_direction:
-                # npaire = 0
+            if axis not in field_direction:
+                # npaire = 1
                 k = 0
                 rhs[i][j][k] = 0.0
                 k = 1
                 rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
                                + b * (field[i][j][k + 2] - field[i][j][k])
             else:
-                #npaire = 1
+                #npaire = 0
                 k = 0
                 rhs[i][j][k] = 2 * (a * field[i][j][k + 1] + b * field[i][j][k + 2])
                 k = 1
@@ -245,16 +251,20 @@ def compute_rhs_1(mesh, field, axis, field_direction):
                                + b * (field[i][j][k + 2] - field[i][j][k - 2])
 
             # BCs @ k = n
-            k = field.shape[2] - 2
-            rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
-                           + b * (field[i][j][k] - field[i][j][k - 2])
-            k = field.shape[2] - 1
-            if axis in field_direction:
-                # npaire = 0
+            if axis not in field_direction:
+                # npaire = 1
+                k = field.shape[2] - 2
+                rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
+                               + b * (field[i][j][k] - field[i][j][k - 2])
+                k = field.shape[2] - 1
                 rhs[i][j][k] = 0.0
             else:
-                # npaire = 1
-                rhs[i][j][k] = 2 * (a * field[i][j][k - 1] + b * field[i][j][k - 2])
+                # npaire = 0
+                k = field.shape[2] - 2
+                rhs[i][j][k] = a * (field[i][j][k + 1] - field[i][j][k - 1]) \
+                               - b * (field[i][j][k] + field[i][j][k - 2])
+                k = field.shape[2] - 1
+                rhs[i][j][k] = -2 * (a * field[i][j][k - 1] + b * field[i][j][k - 2])
 
     return rhs
 
@@ -303,7 +313,7 @@ def compute_rhs_2(mesh, field, axis):
             k = field.shape[2] - 2
             rhs[i][j][k] = 1.5 * (field[i][j][k + 1] - field[i][j][k - 1]) * (0.5 * invdx)
             k = field.shape[2] - 1
-            rhs[i][j][k] = (field[i][j][k] + 4.0 * field[i][j][k - 1] - 5.0 * field[i][j][k - 2]) \
+            rhs[i][j][k] = (5.0 * field[i][j][k] - 4.0 * field[i][j][k - 1] - field[i][j][k - 2]) \
                            * (0.5 * invdx)
 
     return rhs
@@ -370,7 +380,7 @@ def deriv(postproc, phi, axis, time):
 
     # Compute RHS->derivative
     rhs = compute_rhs(postproc, phi, axis, time, bc)
-    rhs = compute_deriv(rhs, bc)
+    rhs = compute_deriv(rhs, bc, not bool(axis in postproc.fields[phi].direction))
 
     # Transpose back to normal orientation and return
     postproc.fields[phi].data[time] = np.swapaxes(postproc.fields[phi].data[time], 2, axis)
