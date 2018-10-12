@@ -46,7 +46,8 @@ class Postprocess():
                 time = val
 
         for var in load_vars:
-            self.fields[var].load(self.mesh, time)
+            if self.fields[var].fromfile:
+                self.fields[var].load(self.mesh, time)
 
     def write(self, **kwargs):
         """"""

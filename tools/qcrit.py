@@ -73,7 +73,8 @@ def calc_qcrit(postprocess, time=-1):
                      "description":"Q-criterion",
                      "properties":{"filename":"Q",
                                    "direction":[0, 0],
-                                   "precision":postprocess.fields["ux"].dtype}}
+                                   "precision":postprocess.fields["ux"].dtype,
+                                   "fromfile":False}}
         postprocess.fields["Q"] = Field(prop_dict)
         postprocess.fields["Q"].data[t] = q
 

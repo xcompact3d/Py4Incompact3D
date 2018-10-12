@@ -18,19 +18,26 @@ class Field():
 
         super().__init__()
 
+        self.fromfile = True
+
         self.name = instance_dictionary["name"]
         self.description = instance_dictionary["description"]
 
         properties = instance_dictionary["properties"]
+
         self.file_root = properties["filename"]
         self.direction = properties["direction"]
-        if "precision" in "properties":
+
+        if "precision" in properties:
             if properties["precision"] == "single":
                 self.dtype = np.float32
             else:
                 self.dtype = np.float64
         else: # Default to double precision
             self.dtype = np.float64
+
+        if "fromfile" in properties:
+            self.fromfile = properties["fromfile"]
 
         self.data = {}
 
