@@ -5,8 +5,7 @@
 .. moduleauthor:: Paul Bartholomew <ptb08@ic.ac.uk>
 """
 
-import numpy as np
-
+from Py4Incompact3D.tools.gradu import calc_gradu
 from Py4Incompact3D.deriv.deriv import deriv
 from Py4Incompact3D.postprocess.fields import Field
 
@@ -29,26 +28,31 @@ def calc_vort(postprocess, time=-1):
     else:
         raise RuntimeError
 
+    vel_list = ["ux", "uy", "uz"]
+    grad_list = ["x", "y", "z"]
     for t in time:
-        # Compute strain-rate tensor
-        S = [[0, 0, 0],
-             [0, 0, 0],
-             [0, 0, 0]]
-        for vel in ["ux", "uy", "uz"]:
-            i = postprocess.fields[vel].direction[0]
+        # Get gradu tensor
+        if not "duxdx" in postprocess.fields.keys():
+            calc_gradu(postprocess, t)
+
+        gradu = [[0, 0, 0],
+                 [0, 0, 0],
+                 [0, 0, 0]]
+        for i in range(3):
             for j in range(3):
-                S[i][j] = 0.5 * deriv(postprocess, vel, j, t)
+                field_name = "d" + vel_list[i] + "d" + grad_list[j]
+                gradu[i][j] = postprocess.fields[field_name].data[t]
         
         # Compute vorticity tensor
-        vortxx = (S[0][0] - S[0][0])
-        vortxy = (S[0][1] - S[1][0])
-        vortxz = (S[0][2] - S[2][0])
+        vortxx = 0.5 * (gradu[0][0] - gradu[0][0])
+        vortxy = 0.5 * (gradu[0][1] - gradu[1][0])
+        vortxz = 0.5 * (gradu[0][2] - gradu[2][0])
         vortyx = -vortxy
-        vortyy = (S[1][1] - S[1][1])
-        vortyz = (S[1][2] - S[2][1])
+        vortyy = 0.5 * (gradu[1][1] - gradu[1][1])
+        vortyz = 0.5 * (gradu[1][2] - gradu[2][1])
         vortzx = -vortxz
         vortzy = -vortyz
-        vortzz = (S[2][2] - S[2][2])
+        vortzz = 0.5 * (gradu[2][2] - gradu[2][2])
 
         prop_dict = {"name":"vortxx",
                      "description":"xx-component of vorticity",
