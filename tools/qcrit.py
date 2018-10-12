@@ -7,6 +7,8 @@
 
 import numpy as np
 
+from Py4Incompact3D.tools.gradu import calc_gradu
+from Py4Incompact3D.tools.vort import calc_vort
 from Py4Incompact3D.deriv.deriv import deriv
 from Py4Incompact3D.postprocess.fields import Field
 
@@ -31,16 +33,24 @@ def calc_qcrit(postprocess, time=-1):
         raise RuntimeError
 
     for t in time:
-        # Compute velocity-gradient tensor
+        # Get gradu tensor
+        if not "duxdx" in postprocess.fields.keys():
+            calc_gradu(postprocess, t)
+
         gradu = [[0, 0, 0],
                  [0, 0, 0],
                  [0, 0, 0]]
-        for vel in ["ux", "uy", "uz"]:
-            i = postprocess.fields[vel].direction[0]
+        vel_list = ["ux", "uy", "uz"]
+        grad_list = ["x", "y", "z"]
+        for i in range(3):
             for j in range(3):
-                gradu[i][j] = 0.5 * deriv(postprocess, vel, j, t)
+                field_name = "d" + vel_list[i] + "d" + grad_list[j]
+                gradu[i][j] = postprocess.fields[field_name].data[t]
 
-        # Extract vorticity tensor
+        # Get vorticity tensor
+        if not "vortxx" in postprocess:
+            calc_vort(postprocess, t)
+
         vort = [[0, 0, 0],
                 [0, 0, 0],
                 [0, 0, 0]]
