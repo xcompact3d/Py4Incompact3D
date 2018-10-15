@@ -43,20 +43,28 @@ def tdma(a, b, c, rhs, overwrite=True):
         bloc = np.copy(b)
         rhsloc = np.copy(rhs)
 
-    for i in range(rhsloc.shape[0]):
-        for j in range(rhsloc.shape[1]):
-            # # Forward elimination
-            # for k in range(1, rhsloc.shape[2]):
-            #     m = a[k] / bloc[k - 1]
-            #     bloc[k] -= m * c[k - 1]
-            #     rhsloc[i][j][k] -= m * rhsloc[i][j][k - 1]
+    # I've written this really dumb - quick fix, loop over first index
+    rhsloc = np.swapaxes(rhsloc, 0, 2)
 
-            # # Backward substituion
-            # rhsloc[i][j][-1] /= bloc[-1]
-            # for k in range(rhsloc.shape[2] - 2, -1, -1):
-            #     rhsloc[i][j][k] -= c[k] * rhsloc[i][j][k + 1]
-            #     rhsloc[i][j][k] /= bloc[k]
-            tdma_f.tdma(a, bloc, c, rhsloc[i][j], rhs.shape[2])
+    ni = rhsloc.shape[0]
+
+    # First manipulate the diagonal
+    for i in range(1, ni):
+        bloc[i] -= a[i] * c[i - 1] / bloc[i - 1]
+
+    # Forward elimination
+    for i in range(1, ni):
+        m = a[i] / bloc[i - 1]
+        rhsloc[i] -= m * rhsloc[i - 1]
+
+    # Backward substitution
+    rhsloc[-1] /= bloc[-1]
+    for i in range(ni - 2, -1, -1):
+        rhsloc[i] -= c[i] * rhsloc[i + 1]
+        rhsloc[i] /= bloc[i]
+
+    # I've written this really dumb - input expects result in last index
+    rhsloc = np.swapaxes(rhsloc, 0, 2)
 
     return rhsloc
 
@@ -104,9 +112,12 @@ def tdma_periodic(a, b, c, rhs):
     u = u[0][0]
 
     # Compute solution x = y - v^T y / (1 + v^T q) q
+    vu = np.dot(v, u)
+    u /= (1.0 + vu)
     for i in range(rhs.shape[0]):
         for j in range(rhs.shape[1]):
-            rhs[i][j] -= np.dot(v, rhs[i][j]) / (1 + np.dot(v, u)) * u
+            rhs[i][j] -= np.dot(v, rhs[i][j]) * u
+
     return rhs
 
 def compute_deriv(rhs, bc, npaire):
