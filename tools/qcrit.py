@@ -48,7 +48,7 @@ def calc_qcrit(postprocess, time=-1):
                 gradu[i][j] = postprocess.fields[field_name].data[t]
 
         # Get vorticity tensor
-        if not "vortxx" in postprocess:
+        if not "vortxx" in postprocess.fields.keys():
             calc_vort(postprocess, t)
 
         vort = [[0, 0, 0],
@@ -82,7 +82,7 @@ def calc_qcrit(postprocess, time=-1):
         prop_dict = {"name":"Q",
                      "description":"Q-criterion",
                      "properties":{"filename":"Q",
-                                   "direction":[0, 0],
+                                   "direction":[-1],
                                    "precision":postprocess.fields["ux"].dtype,
                                    "fromfile":False}}
         postprocess.fields["Q"] = Field(prop_dict)

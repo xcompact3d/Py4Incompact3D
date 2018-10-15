@@ -34,7 +34,7 @@ def calc_gradu(postprocess, time=-1):
         for vel in vel_list:
             i = postprocess.fields[vel].direction[0]
             for j in range(3):
-                field_name = "d" + vel + d + grad_list[j]
+                field_name = "d" + vel + "d" + grad_list[j]
                 desc = "Gradient of " + vel + " wrt " + grad_list[j]
                 prop_dict = {"name":field_name,
                              "description":desc,
