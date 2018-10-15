@@ -9,6 +9,8 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+from mpi4py import MPI
+
 from .input_reader import InputReader
 
 class Postprocess():
@@ -26,9 +28,16 @@ class Postprocess():
 
     def __init__(self, input_file):
 
-        self.input_reader=InputReader()
+        # Initialise MPI
+        self.comm = MPI.COMM_WORLD
+        self.size = self.comm.Get_size()
+        self.rank = self.comm.Get_rank()
+
+        # Read input
+        self.input_reader = InputReader()
         self.input_file = input_file
         self.fields, self.mesh = self._process_input()
+        self.mesh.decomp2d(self.size, self.rank)
 
     def _process_input(self):
         return self.input_reader.read(self.input_file)

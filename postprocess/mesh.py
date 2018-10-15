@@ -57,3 +57,33 @@ class Mesh():
         self.alpha = 1.0 / 3.0
         self.a = 14.0 / 9.0
         self.b = 1.0 / 9.0
+
+    def get_pencil_layout(self, comm_size, comm_rank):
+        """ Determine optimal pencil layout for the given mesh and MPI communicator.
+
+        :param comm_size: Size of the MPI communicator.
+        :param comm_rank: Rank of the processor within the MPI communicator.
+
+        :type comm_size: int
+        :type comm_rank: int
+        """
+
+        # XXX Sub-optimal, good enough maybe?
+        self.prow = int(self.Ny / self.Nx) * comm_size
+        self.pcol = int(comm_size / self.prow)
+        assert(self.prow * self.pcol == comm_size)
+        
+    def decompose2d(self, comm_size, comm_rank):
+        """ Decompose a mesh using 2D pencil decomposition. 
+
+        :param comm_size: Size of the MPI communicator.
+        :param comm_rank: Rank of the processor within the MPI communicator.
+
+        :type comm_size: int
+        :type comm_rank: int
+        """
+
+        # Setup the decomposition
+        self.get_pencil_layout(comm_size, comm_rank)
+
+        # Determine pencil sizes, starts, stops...
