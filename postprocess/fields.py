@@ -57,7 +57,45 @@ class Field():
             assert(len(fldat) == N)
             
         return np.reshape(fldat, (nx, ny, nz), "F")
+
+    def _to_fortran(self, time=-1):
+        """ Converts data fields from internal (C) to Fortran ordering.
         
+        :param time: The time(s) to convert.
+        :type time: int or list of int
+        """
+
+        if time == -1:
+            conv_times = self.data.keys()
+        elif isinstance(time, int):
+            conv_times = [time]
+        elif isinstance(time, list):
+            conv_times = time
+        else:
+            raise ValueError
+
+        for t in conv_times:
+            self.data[t] = np.swapaxes(self.data[t], 0, 2)
+
+    def _from_fortran(self, time=-1):
+        """ Converts data fields from Fortran to internal (C) ordering.
+
+        :param time: The time(s) to convert.
+        :type time: int or list of int
+        """
+
+        if time == -1:
+            conv_times = self.data.keys()
+        elif isinstance(time, int):
+            conv_times = [time]
+        elif isinstance(time, list):
+            conv_times = time
+        else:
+            raise ValueError
+
+        for t in conv_times:
+            self.data[t] = np.swapaxes(self.data[t], 2, 0)
+
     def load(self, mesh, time=-1):
         """ Loads a datafield timeseries.
 
@@ -93,8 +131,40 @@ class Field():
             if not read_success:
                 raise RuntimeError
 
+    def _get_timestamp(self, t, timestamp_len=3):
+        """ Set the timestamp for output according to format: phiXXX where XXX is the time
+        left-padded with zeros.
+
+        :param t: The time.
+        :param timestep_len: The desired length of the timestamp.
+
+        :type t: int
+        :type timestep_len: int
+
+        :returns: timestamp
+        :rtype: str
+        """
+
+        timestamp = str(t)
+        nzeros = timestamp_len - len(timestamp)
+        if nzeros >= 0:
+            timestamp = "0" * nzeros + timestamp
+        else:
+            msg = "Timestamp ({}) too short to format time {}".format(str(timestamp_len), str(t))
+            raise RuntimeError(msg)
+
+        return timestamp
+
     def write(self, time, timestamp_len=3):
-        """"""
+        """ Output to binary file.
+
+        :param time: The time(s) to write out to.
+        :param timestep_len: How long should the timestep be? A length of 3 gives timestep 1 as 001,
+        10 as 010 etc.
+
+        :type time: int or list of int
+        :type timestep_len: int
+        """
 
         if time == -1:
             write_times = self.data.keys()
@@ -106,17 +176,15 @@ class Field():
             raise ValueError
 
         for t in write_times:
-            timestamp = str(t)
-            timestamp = "0" * (timestamp_len - len(timestamp)) + timestamp
-            filename = self.file_root + timestamp
+            filename = self.file_root + self._get_timestamp(t, timestamp_len)
 
             # Dump to raw binary, numpy writes in 'C' order so we need to shuffle our
             # array so that 'C' order looks like 'Fortran' order...
-            self.data[t] = np.swapaxes(self.data[t], 0, 2)
+            self._to_fortran(t)
             self.data[t].tofile(filename)
 
             # Shuffle back to 'C' order incase we want to keep working with the array
-            self.data[t] = np.swapaxes(self.data[t], 2, 0)
+            self.data[t] = self._from_fortran(t)
 
     def clear(self):
         """ Cleanup data. """
