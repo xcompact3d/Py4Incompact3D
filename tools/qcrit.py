@@ -5,6 +5,10 @@
 .. moduleauthor:: Paul Bartholomew <ptb08@ic.ac.uk>
 """
 
+import numpy as np
+
+from Py4Incompact3D.tools.gradu import calc_gradu
+from Py4Incompact3D.tools.vort import calc_vort
 from Py4Incompact3D.deriv.deriv import deriv
 from Py4Incompact3D.postprocess.fields import Field
 
@@ -29,15 +33,24 @@ def calc_qcrit(postprocess, time=-1):
         raise RuntimeError
 
     for t in time:
-        # Compute strain-rate tensor
-        S = np.zeros((3, 3))
-        for vel in ["ux", "uy", "uz"]:
-            i = postprocess.fields[vel].direction[0]
-            for j in range(3):
-                print(i, j)
-                S[i][j] = 0.5 * deriv(postprocess, vel, j, t)
+        # Get gradu tensor
+        if not "duxdx" in postprocess.fields.keys():
+            calc_gradu(postprocess, t)
 
-        # Extract vorticity tensor
+        gradu = [[0, 0, 0],
+                 [0, 0, 0],
+                 [0, 0, 0]]
+        vel_list = ["ux", "uy", "uz"]
+        grad_list = ["x", "y", "z"]
+        for i in range(3):
+            for j in range(3):
+                field_name = "d" + vel_list[i] + "d" + grad_list[j]
+                gradu[i][j] = postprocess.fields[field_name].data[t]
+
+        # Get vorticity tensor
+        if not "vortxx" in postprocess.fields.keys():
+            calc_vort(postprocess, t)
+
         vort = [[0, 0, 0],
                 [0, 0, 0],
                 [0, 0, 0]]
@@ -47,8 +60,19 @@ def calc_qcrit(postprocess, time=-1):
                 name = "vort" + directions[i] + directions[j]
                 vort[i][j] = postprocess.fields[name].data[t]
 
+        # Construct strain-rate tensor
+        S = [[0, 0, 0],
+             [0, 0, 0],
+             [0, 0, 0]]
+        for i in range(3):
+            for j in range(3):
+                S[i][j] = 0.5 * (gradu[i][j] + gradu[j][i])
+
         # Compute Q-criterion
-        q = np.zeros([postprocess.mesh.nx, postprocess.mesh.ny, postprocess.mesh.nz],
+        nx = postprocess.fields["ux"].data[t].shape[0]
+        ny = postprocess.fields["ux"].data[t].shape[1]
+        nz = postprocess.fields["ux"].data[t].shape[2]
+        q = np.zeros([nx, ny, nz],
                      dtype=postprocess.fields["ux"].dtype)
         for i in range(3):
             for j in range(3):
@@ -58,8 +82,9 @@ def calc_qcrit(postprocess, time=-1):
         prop_dict = {"name":"Q",
                      "description":"Q-criterion",
                      "properties":{"filename":"Q",
-                                   "direction":[0, 0],
-                                   "precision":postprocess.fields["ux"].dtype}}
+                                   "direction":[-1],
+                                   "precision":postprocess.fields["ux"].dtype,
+                                   "fromfile":False}}
         postprocess.fields["Q"] = Field(prop_dict)
         postprocess.fields["Q"].data[t] = q
 

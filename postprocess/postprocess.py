@@ -46,7 +46,26 @@ class Postprocess():
                 time = val
 
         for var in load_vars:
-            self.fields[var].load(self.mesh, time)
+            if self.fields[var].fromfile:
+                self.fields[var].load(self.mesh, time)
+
+    def write(self, **kwargs):
+        """"""
+
+        vars = "all"
+        time = -1
+        for arg, val in kwargs.items():
+            if "vars" == arg:
+                vars = val
+            elif "time" == arg:
+                time = val
+
+        if vars == "all":
+            vars = self.fields.keys()
+        print(vars)
+
+        for var in vars:
+            self.fields[var].write(time)
 
     def clear_data(self, vars="all"):
         """ Clear stored data fields. """
