@@ -7,8 +7,6 @@
 
 import numpy as np
 
-import Py4Incompact3D.deriv.tdma as tdma_f
-
 def tdma(a, b, c, rhs, overwrite=True):
     """ The Tri-Diagonal Matrix Algorithm.
 
