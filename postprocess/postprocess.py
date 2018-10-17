@@ -59,7 +59,8 @@ class Postprocess():
                 self.fields[var].load(self.mesh, time)
 
     def write(self, **kwargs):
-        """"""
+        """ Write data.
+        """
 
         vars = "all"
         time = -1
