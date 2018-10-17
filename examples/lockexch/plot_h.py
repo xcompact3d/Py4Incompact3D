@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 
 from Py4Incompact3D.postprocess.postprocess import Postprocess
 from Py4Incompact3D.tools.lockexch import calc_h
+from Py4Incompact3D.tools.misc import moving_avg
 
 ####################################################################################################
 #
@@ -26,9 +27,12 @@ from Py4Incompact3D.tools.lockexch import calc_h
 T=20
 T+=1
 
+# Moving average size
+NSMPL=16
+
 # Figure dimensions.
 # 5.0 x 3.5 is generally a nice ratio
-# Y = (26/164) * X matches Birman2005's plots
+# Y = (26/164) * X matches aspect ratio of Birman2005's plots
 PLTX=5.0
 PLTY=(26. / 164.) * PLTX
 
@@ -68,7 +72,8 @@ def main():
         h = calc_h(postprocess)
         postprocess.clear_data()
 
-        # Smooth h
+        # Smooth h using moving average
+        h[t] = np.array(moving_avg(h[t], NSMPL))
 
         # Plot
         plt.figure(figsize=(PLTX, PLTY))
