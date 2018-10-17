@@ -92,19 +92,42 @@ def calc_h(postprocess, field="rho", gamma=0.998, time=-1):
 
     return h
 
-def get_frontloc_birman(postprocess, h):
+def get_frontloc_birman(h):
     """ Determines the front locations according to Birman2005. 
+
+    :param h: Time-keyed dictionary of gravity-current height.
+    :type h: dict
+
+    :returns: idxr, idxw, idxf: time-keyed dictionaries containing the indices of the front
+              locations.
+    :rtype: dict, dict, dict
+
+    .. note::
+        In the case the front cannot be found, the index will have value None.
     """
 
-    ## Setup the x-array
-    #
-    #  np.arange() does not include the stop value, therefore we have to append it.
-    #
-    x = np.append(np.arange(start=0,
-                            stop=postprocess.mesh.Lx,
-                            step=postprocess.mesh.dx),
-                  postprocess.mesh.Lx)
+    idxr = {}
+    idxw = {}
+    idxf = {}
+    for t in h.keys():
+        idxr[t] = None
+        idxw[t] = None
+        idxf[t] = None
 
-    ## Get indices of local maxima/minima
-    maxima = argrelextrema(h, np.greater)
-    minima = argrelextrema(h, np.less)
+        ## Get indices of local maxima/minima
+        maxima = argrelextrema(h[t], np.greater)
+        minima = argrelextrema(h[t], np.less)
+
+        idxr[t] = minima[0]
+        hw = h[t][0]
+        for idx in minima:
+            if h[t][idx] < hw:
+                idxw[t] = idx
+                hw = h[t][idx]
+        hf = 0
+        for idx in maxima:
+            if (idx > idxw) and (h[t][idx] > hf):
+                idxf[t] = idx
+                hf = h[t][idx]
+
+    return idxr, idxw, idxf
