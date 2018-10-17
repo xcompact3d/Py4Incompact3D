@@ -6,6 +6,7 @@
 """
 
 import numpy as np
+from scipy.signal import argrelextrema
 
 def calc_h(postprocess, field="rho", gamma=0.998, time=-1):
     r""" Calculates the "height" of the gravity-current, assumes name field (default :math:`\rho`)
@@ -90,4 +91,20 @@ def calc_h(postprocess, field="rho", gamma=0.998, time=-1):
         np.clip(h[t], 0, 1, h[t])
 
     return h
-    
+
+def get_frontloc_birman(postprocess, h):
+    """ Determines the front locations according to Birman2005. 
+    """
+
+    ## Setup the x-array
+    #
+    #  np.arange() does not include the stop value, therefore we have to append it.
+    #
+    x = np.append(np.arange(start=0,
+                            stop=postprocess.mesh.Lx,
+                            step=postprocess.mesh.dx),
+                  postprocess.mesh.Lx)
+
+    ## Get indices of local maxima/minima
+    maxima = argrelextrema(h, np.greater)
+    minima = argrelextrema(h, np.less)
