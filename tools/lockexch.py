@@ -7,29 +7,36 @@
 
 import numpy as np
 
-def calc_h(postprocess, gamma=0.998, time=-1):
-    r""" Calculates the "height" of the gravity-current, assumes :math:`\rho` is available.
+def calc_h(postprocess, field="rho", gamma=0.998, time=-1):
+    r""" Calculates the "height" of the gravity-current, assumes name field (default :math:`\rho`)
+    is available.
 
     This is based on the technique proposed in Birman2005 where the height of the gravity current is
     defined as:
 
     .. math::
-        h \left( x \right) = \frac{1}{1 - \gamma} \int^{L_y}_0 \overline{\rho} \left( x, y \right) dy -
-          \frac{\gamma}{1 - \gamma}
+        h \left( x \right) = \frac{1}{L_y} \left( \frac{1}{1 - \gamma} \int^{L_y}_0 \overline{\rho}
+        \left( x, y \right) dy - \frac{\gamma}{1 - \gamma} \right)
 
     where :math:`\overline{\rho}` is :math:`\rho` averaged over the z axis.
 
     :param postprocess: The postprocessing object.
+    :param field: The name of the field to calculate the height by
     :param gamma: The density ratio, defined as :math:`\gamma = \frac{\rho_1}{\rho_2},\ 0 \leq
                   \gamma < 1`
     :param time: The time(s) to compute h for, -1 means all times.
 
     :type postprocess: Py4Incompact3D.postprocess.postprocess.Postprocess
+    :type field: str
     :type gamma: float
     :type time: int or list of int
 
     :returns: h -- a time-keyed dictionary of :math:`h \left( x \right)`
     :rtype: dict
+
+    .. note::
+        In the Boussinesq limit, the appropriate field is a concentration field :math:`0 \leq c \leq
+        1` for which, set :math:`\gamma = 0`.
     """
 
     assert(gamma < 1)
