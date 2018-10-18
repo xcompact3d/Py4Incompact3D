@@ -6,6 +6,6 @@ variables:
 
 test:
   script:
-    echo ${PYTHONPATH}
-    echo ${PWD}
-    make test
+    - echo ${PYTHONPATH}
+    - echo ${PWD}
+    - make test
