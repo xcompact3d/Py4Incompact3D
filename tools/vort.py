@@ -5,7 +5,7 @@
 .. moduleauthor:: Paul Bartholomew <ptb08@ic.ac.uk>
 """
 
-from Py4Incompact3D.tools.gradu import calc_gradu
+from Py4Incompact3D.tools.gradu import calc_gradu, get_gradu_tensor
 from Py4Incompact3D.deriv.deriv import deriv
 from Py4Incompact3D.postprocess.fields import Field
 
@@ -28,20 +28,12 @@ def calc_vort(postprocess, time=-1):
     else:
         raise RuntimeError
 
-    vel_list = ["ux", "uy", "uz"]
     grad_list = ["x", "y", "z"]
     for t in time:
         # Get gradu tensor
         if not "duxdx" in postprocess.fields.keys():
             calc_gradu(postprocess, t)
-
-        gradu = [[0, 0, 0],
-                 [0, 0, 0],
-                 [0, 0, 0]]
-        for i in range(3):
-            for j in range(3):
-                field_name = "d" + vel_list[i] + "d" + grad_list[j]
-                gradu[i][j] = postprocess.fields[field_name].data[t]
+        gradu = get_gradu_tensor(postprocess, t)[t]
         
         # Compute vorticity tensor
         for i in range(3):
