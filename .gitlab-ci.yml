@@ -1,10 +1,11 @@
 before_script:
   - apt-get update -qq && apt-get install -y -qq python3-numpy python3-scipy > /dev/null
-  - ls ./
 
 variables:
   PYTHONPATH: ${PYTHONPATH}:${PWD}
 
 test:
   script:
+    echo ${PYTHONPATH}
+    echo ${PWD}
     make test
