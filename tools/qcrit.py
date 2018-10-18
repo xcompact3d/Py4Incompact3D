@@ -76,7 +76,7 @@ def calc_qcrit(postprocess, time=-1):
                      dtype=postprocess.fields["ux"].dtype)
         for i in range(3):
             for j in range(3):
-                q += 0.5 * (vort[i][j]**2 - S[i][j]**2)
+                q += 0.5 * (vort[i][j] * vort[j][i] - S[i][j] * S[j][i])
 
         # Create Q field
         prop_dict = {"name":"Q",
