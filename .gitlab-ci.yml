@@ -6,6 +6,7 @@ test:
   script:
     - export CWD=${PWD}
     - cd ../
+    - mv py4incompact3d Py4Incompact3D
     - export PYTHONPATH=${PWD}
     - echo ${PYTHONPATH}
     - ls ${PYTHONPATH}
