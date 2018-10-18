@@ -8,5 +8,6 @@ test:
     - cd ../
     - export PYTHONPATH=${PWD}
     - echo ${PYTHONPATH}
+    - ls ${PYTHONPATH}
     - cd ${CWD}
     - make test
