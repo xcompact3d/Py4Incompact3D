@@ -4,6 +4,9 @@ before_script:
 
 test:
   script:
+    - export CWD=${PWD}
+    - cd ../
     - export PYTHONPATH=${PWD}
     - echo ${PYTHONPATH}
+    - cd ${CWD}
     - make test
