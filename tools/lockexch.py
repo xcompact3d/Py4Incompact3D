@@ -92,8 +92,8 @@ def calc_h(postprocess, field="rho", gamma=0.998, time=-1):
 
     return h
 
-def get_frontloc_birman(h):
-    """ Determines the front locations according to Birman2005. 
+def get_frontidx_birman(h):
+    """ Determines the array indidices for front locations according to Birman2005.
 
     :param h: Time-keyed dictionary of gravity-current height.
     :type h: dict
