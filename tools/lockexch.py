@@ -8,6 +8,8 @@
 import numpy as np
 from scipy.signal import argrelextrema
 
+from Py4Incompact3D.tools.misc import int_over_axis, avg_over_axis
+
 def calc_h(postprocess, field="rho", gamma=0.998, time=-1):
     r""" Calculates the "height" of the gravity-current, assumes name field (default :math:`\rho`)
     is available.
@@ -57,28 +59,15 @@ def calc_h(postprocess, field="rho", gamma=0.998, time=-1):
     ny = postprocess.mesh.Ny
     nz = postprocess.mesh.Nz
 
-    # Setup the integration area arrays
-    dy = postprocess.mesh.dy * np.ones(ny)
-    if (1 == postprocess.mesh.BCy) or (2 == postprocess.mesh.BCy):
-        dy[0] *= 0.5
-        dy[-1] *= 0.5
-    dz = postprocess.mesh.dz * np.ones(nz)
-    if (1 == postprocess.mesh.BCz) or (2 == postprocess.mesh.BCz):
-        dz[0] *= 0.5
-        dz[-1] *= 0.5
-
     # Integrate at each time t
     h = {}
     for t in load_times:
-        h[t] = [0] * nx
         rho = postprocess.fields["rho"].data[t]
 
-        # Average in z
-        h[t] = (rho * dz).sum(axis=2) / postprocess.mesh.Lz
-
-        # Integrate in y
-        h[t] *= dy
-        h[t] = h[t].sum(axis=1)
+        # Average in z then integrate over y
+        h[t] = int_over_axis(postprocess.mesh,
+                             avg_over_axis(postprocess.mesh, rho, 2),
+                             1)
 
         # Account for density ratio
         h[t] -= gamma * postprocess.mesh.Ly
