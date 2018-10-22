@@ -23,7 +23,7 @@ def get_vort_name(i, j):
     """
 
     dirlist = ["x", "y", "z"]
-    return "vort" + dirlist[x] + dirlist[j]
+    return "vort" + dirlist[i] + dirlist[j]
 
 def calc_vort(postprocess, time=-1):
     """ Computes the vorticity of the velocity field, assumes ux uy and uz have all been loaded. 
