@@ -23,7 +23,7 @@
 		"name": "rho",
 		"description": "Instantaneous density",
 		"properties": {
-			"filename": "../DATA/constcoeff/gamma0.998/rho",
+			"filename": "../DATA/varcoeff/gamma0.2/rho",
 			"direction": [-1]
 		}
 	}

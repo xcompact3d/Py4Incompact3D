@@ -107,16 +107,23 @@ def get_frontidx_birman(h):
         maxima = argrelextrema(h[t], np.greater)
         minima = argrelextrema(h[t], np.less)
 
-        idxr[t] = minima[0]
-        hw = h[t][0]
-        for idx in minima:
-            if h[t][idx] < hw:
-                idxw[t] = idx
-                hw = h[t][idx]
-        hf = 0
-        for idx in maxima:
-            if (idx > idxw) and (h[t][idx] > hf):
-                idxf[t] = idx
-                hf = h[t][idx]
+        if len(minima[0]):
+            # The light front is the first minimum
+            idxr[t] = minima[0][0]
+
+            # hw is the lowest minimum within the expansion
+            hw = h[t][0]
+            for idx in minima[0]:
+                if h[t][idx] < hw:
+                    idxw[t] = idx
+                    hw = h[t][idx]
+
+            # The dense front is the peak maximum after hw
+            if len(maxima[0]):
+                hf = 0
+                for idx in maxima[0]:
+                    if (idx > idxw[t]) and (h[t][idx] > hf):
+                        idxf[t] = idx
+                        hf = h[t][idx]
 
     return idxr, idxw, idxf
