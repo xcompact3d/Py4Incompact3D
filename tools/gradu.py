@@ -50,7 +50,7 @@ def calc_gradu(postprocess, time=-1):
         for i in range(3):
             for j in range(3):
                 field_name = get_gradu_name(i, j)
-                desc = "Gradient of " + vel + " wrt " + grad_list[j]
+                desc = field_name
                 prop_dict = {"name":field_name,
                              "description":desc,
                              "properties":{"filename":field_name,
@@ -58,7 +58,7 @@ def calc_gradu(postprocess, time=-1):
                                            "precision":postprocess.fields["ux"].dtype,
                                            "fromfile":False}}
                 postprocess.fields[field_name] = Field(prop_dict)
-                postprocess.fields[field_name].data[t] = deriv(postprocess, vel, j, t)
+                postprocess.fields[field_name].data[t] = deriv(postprocess, ["ux", "uy", "uz"][i], j, t)
 
 def get_gradu_tensor(postprocess, time=-1):
     r""" Construct the gradient tensor from the individual components.
