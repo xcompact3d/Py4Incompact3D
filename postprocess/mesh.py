@@ -57,3 +57,17 @@ class Mesh():
         self.alpha = 1.0 / 3.0
         self.a = 14.0 / 9.0
         self.b = 1.0 / 9.0
+
+    def get_grid(self):
+        """ Return the x,y,z arrays that describe the mesh. """
+
+        x, y, z = np.zeros(self.Nx), np.zeros(self.Ny), np.zeros(self.Nz)
+
+        for i in range(self.Nx):
+            x[i] = i * self.dx
+        for j in range(self.Ny):
+            y[j] = j * self.dy
+        for k in range(self.Nz):
+            z[k] = j * self.dz
+
+        return x, y, z
