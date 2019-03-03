@@ -39,6 +39,21 @@ class Mesh():
         # Once we know the mesh layout we can set the derivative variables
         self.compute_derivvars()
 
+    def get_grid(self):
+
+        x = np.zeros(self.Nx)
+        y = np.zeros(self.Ny)
+        z = np.zeros(self.Nz)
+
+        for i in range(self.Nx):
+            x[i] = i * self.dx
+        for i in range(self.Ny):
+            y[i] = i * self.dy
+        for i in range(self.Nz):
+            z[i] = i * self.dz
+
+        return x, y, z
+
     def compute_derivvars(self):
         """ Compute variables required by derivative functions. """
         if (self.BCx==0):
