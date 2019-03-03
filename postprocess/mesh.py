@@ -87,6 +87,54 @@ class Mesh():
         self.prow = int(self.Ny / self.Nx) * comm_size
         self.pcol = int(comm_size / self.prow)
         assert(self.prow * self.pcol == comm_size)
+
+    def get_pencil(self, axis_size, ndiv, pgrid_distance):
+        """ Determine the size of the pencil to be assigned to a rank.
+
+        :param axis_size: Size of the axis.
+        :param ndiv: Number of ranks to divide axis by.
+        :param pgrid_distance: Distance along the axis in the processor grid.
+
+        :type axis_size: int
+        :type ndiv: int
+        :type pgrid_distance: int
+
+        By convention the axis is first split equally using integer division, the remainder is then
+        distributed to the ranks lower in the processor grid by increasing their size by one.
+
+        The grids are laid out as:
+
+        Xgrid
+       y^
+        | 3 4 5
+        | 0 1 2
+        +------>z
+
+        Ygrid
+       z^
+        | 3 4 5
+        | 0 1 2
+        +------>x
+
+        Zgrid
+        ^
+        | 3 4 5
+        | 0 1 2
+        +------>
+        """
+
+        size = axis_size // ndiv
+
+        start = pgrid_distance * size
+
+        rem = axis_size - ndiv * size
+        if (pgrid_distance < rem):
+            size += 1
+
+        start += min(rem, pgrid_distance)
+        end = start + (size - 1)
+
+        return start, end, size
         
     def decompose2d(self, comm_size, comm_rank):
         """ Decompose a mesh using 2D pencil decomposition. 
@@ -102,3 +150,10 @@ class Mesh():
         self.get_pencil_layout(comm_size, comm_rank)
 
         # Determine pencil sizes, starts, stops...
+        self.xsize = [0] * 3
+        self.ysize = [0] * 3
+        self.zsize = [0] * 3
+
+        self.xsize[0] = self.Nx
+        self.xsize[1] = self.get_pencil_size(self.Ny, p_row)
+        self.xsize[2] = self.get_pencil_size(self.Nz, p_col)
