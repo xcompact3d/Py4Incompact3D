@@ -117,10 +117,10 @@ class Mesh():
         +------>x
 
         Zgrid
-        ^
+       x^
         | 3 4 5
         | 0 1 2
-        +------>
+        +------>y
         """
 
         size = axis_size // ndiv
@@ -135,6 +135,15 @@ class Mesh():
         end = start + (size - 1)
 
         return start, end, size
+
+    def get_pgrid_distance(self, pgrid_length, comm_rank):
+        """ Returns the position of rank along an axis of the processor grid. """
+
+        row = comm_rank // self.pcol
+        if pgrid_length == self.prow:
+            return row
+        else:
+            return comm_rank - row * self.pcol
         
     def decompose2d(self, comm_size, comm_rank):
         """ Decompose a mesh using 2D pencil decomposition. 
@@ -151,9 +160,38 @@ class Mesh():
 
         # Determine pencil sizes, starts, stops...
         self.xsize = [0] * 3
+        self.xstart = [0] * 3
+        self.xend = [0] * 3
+        
         self.ysize = [0] * 3
+        self.ystart = [0] * 3
+        self.yend = [0] * 3
+        
         self.zsize = [0] * 3
+        self.zstart = [0] * 3
+        self.zend = [0] * 3
 
-        self.xsize[0] = self.Nx
-        self.xsize[1] = self.get_pencil_size(self.Ny, p_row)
-        self.xsize[2] = self.get_pencil_size(self.Nz, p_col)
+        self.xstart[0], self.xend[0], self.xsize[0] = self.get_pencil(self.Nx, 1, 1)
+        self.xstart[1], self.xend[1], self.xsize[1] = self.get_pencil_size(self.Ny, self.prow,
+                                                                           self.get_pgrid_distance(self.prow,
+                                                                                                   comm_rank))
+        self.xstart[2], self.xend[2], self.xsize[2] = self.get_pencil_size(self.Nz, self.pcol,
+                                                                           self.get_pgrid_distance(self.pcol,
+                                                                                                   comm_rank))
+
+        self.ystart[0], self.yend[0], self.ysize[0] = self.get_pencil(self.Nx, 1, 1)
+        self.ystart[1], self.yend[1], self.ysize[1] = self.get_pencil_size(self.Ny, self.prow,
+                                                                           self.get_pgrid_distance(self.prow,
+                                                                                                   comm_rank))
+        self.ystart[2], self.yend[2], self.ysize[2] = self.get_pencil_size(self.Nz, self.pcol,
+                                                                           self.get_pgrid_distance(self.pcol,
+                                                                                                   comm_rank))
+
+        self.zstart[0], self.zend[0], self.zsize[0] = self.get_pencil(self.Nx, 1, 1)
+        self.zstart[1], self.zend[1], self.zsize[1] = self.get_pencil_size(self.Ny, self.prow,
+                                                                           self.get_pgrid_distance(self.prow,
+                                                                                                   comm_rank))
+        self.zstart[2], self.zend[2], self.zsize[2] = self.get_pencil_size(self.Nz, self.pcol,
+                                                                           self.get_pgrid_distance(self.pcol,
+                                                                                                   comm_rank))
+
