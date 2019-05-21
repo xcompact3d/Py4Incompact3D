@@ -35,6 +35,10 @@ class Mesh():
         self.BCx = properties["BCx"]
         self.BCy = properties["BCy"]
         self.BCz = properties["BCz"]
+        try:
+            self.yp = properties["yp"]
+        except:
+            self.yp = None
 
         # Once we know the mesh layout we can set the derivative variables
         self.compute_derivvars()
@@ -72,3 +76,26 @@ class Mesh():
         self.alpha = 1.0 / 3.0
         self.a = 14.0 / 9.0
         self.b = 1.0 / 9.0
+
+    def get_grid(self):
+        """ Return the x,y,z arrays that describe the mesh. """
+
+        x, y, z = np.zeros(self.Nx), np.zeros(self.Ny), np.zeros(self.Nz)
+
+        for i in range(self.Nx):
+            x[i] = i * self.dx
+            
+        if (not self.yp):
+            for j in range(self.Ny):
+                y[j] = j * self.dy
+        else:
+            with open(self.yp, "r") as ypfile:
+                j = 0
+                for row in ypfile:
+                    y[j] = float(row)
+                    j += 1
+                    
+        for k in range(self.Nz):
+            z[k] = k * self.dz
+
+        return x, y, z

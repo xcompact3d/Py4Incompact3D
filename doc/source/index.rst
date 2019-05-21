@@ -32,3 +32,17 @@ Derivatives
 
 .. automodule:: Py4Incompact3D.deriv.deriv
     :members:
+
+Tools
+-----
+
+General postprocessing tools go here
+
+.. automodule:: Py4Incompact3D.tools.gradu
+    :members:
+.. automodule:: Py4Incompact3D.tools.vort
+    :members:
+.. automodule:: Py4Incompact3D.tools.qcrit
+    :members:
+.. automodule:: Py4Incompact3D.tools.lockexch
+    :members:

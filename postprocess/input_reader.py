@@ -39,7 +39,8 @@ class InputReader():
             "Lz" : float,
             "BCx": int,
             "BCy": int,
-            "BCz": int
+            "BCz": int,
+            "yp" : str            # Which yp.dat to read? Informs about mesh stretching
         }
 
         self._data_properties = {

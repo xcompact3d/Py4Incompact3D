@@ -1,0 +1,11 @@
+before_script:
+  - apt-get update -qq && apt-get install -y -qq python3-numpy python3-scipy > /dev/null
+
+
+test:
+  script:
+    - cd ../
+    - mv py4incompact3d Py4Incompact3D
+    - export PYTHONPATH=${PWD}
+    - cd Py4Incompact3D
+    - make test
