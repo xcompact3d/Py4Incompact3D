@@ -35,6 +35,10 @@ class Mesh():
         self.BCx = properties["BCx"]
         self.BCy = properties["BCy"]
         self.BCz = properties["BCz"]
+        try:
+            self.yp = properties["yp"]
+        except:
+            self.yp = None
 
         # Once we know the mesh layout we can set the derivative variables
         self.compute_derivvars()
@@ -65,9 +69,18 @@ class Mesh():
 
         for i in range(self.Nx):
             x[i] = i * self.dx
-        for j in range(self.Ny):
-            y[j] = j * self.dy
+            
+        if (not self.yp):
+            for j in range(self.Ny):
+                y[j] = j * self.dy
+        else:
+            with open(self.yp, "r") as ypfile:
+                j = 0
+                for row in ypfile:
+                    y[j] = float(row)
+                    j += 1
+                    
         for k in range(self.Nz):
-            z[k] = j * self.dz
+            z[k] = k * self.dz
 
         return x, y, z
