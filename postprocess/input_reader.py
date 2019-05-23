@@ -13,7 +13,9 @@ from .mesh import Mesh
 from .fields import Field
 import json
 
-OPTIONAL=["yp"]
+OPTIONAL=["yp",
+          "beta",
+          "stretched"]
 
 class InputReader():
     """
