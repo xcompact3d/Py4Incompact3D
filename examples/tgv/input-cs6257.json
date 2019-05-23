@@ -1,0 +1,48 @@
+{
+  "type": "postprocess_input",
+  "name": "",
+  "description": "Example Py4Incompact3D Postprocess Input file",
+  "mesh": {
+    "type": "mesh",
+    "name": "mesh_example",
+    "description": "Mesh example",
+    "properties": {
+      "Nx": 257,
+      "Ny": 257,
+      "Nz": 8,
+      "Lx": 3.141592653589793,
+      "Ly": 3.141592653589793,
+      "Lz": 1.0,
+      "BCx": 1,
+      "BCy": 1,
+      "BCz": 0
+    }
+  },
+	"ux": {
+		"type": "data",
+		"name": "ux",
+		"description": "Instantaneous x velocity",
+		"properties": {
+			"filename": "/home/paul/DATA/Incompact3d/tgv2d/tgv2d-4/ux",
+			"direction": [0]
+		}
+	},
+	"uy": {
+		"type": "data",
+		"name": "uy",
+		"description": "Instantaneous y velocity",
+		"properties": {
+			"filename": "/home/paul/DATA/Incompact3d/tgv2d/tgv2d-4/uy",
+			"direction": [1]
+		}
+	},
+	"pp": {
+		"type": "data",
+		"name": "pp",
+		"description": "Instantaneous pressure",
+		"properties": {
+			"filename": "/home/paul/DATA/Incompact3d/tgv2d/tgv2d-4/pp",
+			"direction": [0]
+		}
+	}
+}
