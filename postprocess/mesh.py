@@ -9,6 +9,8 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import math
+
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.interpolate import griddata
@@ -36,12 +38,32 @@ class Mesh():
         self.BCy = properties["BCy"]
         self.BCz = properties["BCz"]
         try:
-            self.yp = properties["yp"]
+            self.stretched = properties["stretched"]
+            self.beta = properties["beta"]
         except:
-            self.yp = None
+            self.stretched = False
+            self.beta = 0
 
         # Once we know the mesh layout we can set the derivative variables
         self.compute_derivvars()
+
+        if self.stretched:
+            try:
+                self.yp = properties["yp"]
+                with open(self.yp, "r") as ypfile:
+                    j = 0
+                    self.yp = np.zeros(self.Ny)
+                    for row in ypfile:
+                        self.yp[j] = float(row)
+                        j += 1
+
+                yp, yeta = self.calc_yp()
+            except:
+                self.yp, yeta = self.calc_yp()
+
+            self.ppy = self.calc_ppy(yeta)
+        else:
+            self.yp = None
 
     def get_grid(self):
 
@@ -62,20 +84,133 @@ class Mesh():
         """ Compute variables required by derivative functions. """
         if (self.BCx==0):
             self.dx = self.Lx / float(self.Nx)
+            self.Nxm = self.Nx
         else:
             self.dx = self.Lx / float(self.Nx-1)
+            self.Nxm = self.Nx - 1
+            
         if (self.BCy==0):
             self.dy = self.Ly / float(self.Ny) # XXX This will not be correct for stretched grids
+            self.Nym = self.Ny
         else:
             self.dy = self.Ly / float(self.Ny-1) # XXX This will not be correct for stretched grids
+            self.Nym = self.Ny - 1
+            
         if (self.BCz==0):
             self.dz = self.Lz / float(self.Nz)
+            self.Nzm = self.Nz
         else:
             self.dz=self.Lz/float(self.Nz-1)
+            self.Nzm = self.Nz - 1
 
         self.alpha = 1.0 / 3.0
         self.a = 14.0 / 9.0
         self.b = 1.0 / 9.0
+
+    def calc_yp(self):
+
+        self.compute_derivvars()
+        
+        yinf = -self.Ly / 2.0
+        den = 2.0 * self.beta * yinf
+        xnum = -(yinf + math.sqrt((math.pi * self.beta)**2 + yinf**2))
+        alpha = abs(xnum / den)
+        xcx = 1.0 / self.beta / alpha
+
+        yp = np.zeros(self.Ny)
+        yeta = np.zeros(self.Ny)
+        
+        if (alpha != 0.0):
+            yp[0] = 0.0
+            yeta[0] = -0.5
+            for j in range(1, self.Ny):
+                if (self.stretched == 1):
+                    yeta[j] = (j - 1.0) / self.Nym
+                elif (self.stretched == 2):
+                    yeta[j] = (j - 1.0) / self.Nym - 0.5
+                else:
+                    yeta[j] = (j - 1.0) * 0.5 / self.Ny - 0.5
+
+                den1 = math.sqrt(alpha * self.beta + 1)
+                xnum = den1 / math.sqrt(alpha / math.pi) / math.sqrt(self.beta) \
+                       / math.sqrt(math.pi)
+                den = 2.0 * math.sqrt(alpha / math.pi) * math.sqrt(self.beta) \
+                      * math.pi**1.5
+                den3 = (math.sin(math.pi * yeta[j]))**2 / self.beta / math.pi \
+                       + alpha / math.pi
+                den4 = 2.0 * alpha * self.beta - math.cos(2.0 * math.pi * yeta[j]) + 1.0
+                xnum1 = math.atan(xnum * math.tan(math.pi * yeta[j])) \
+                         * den4 / den1 / den3 / den
+                cst = math.sqrt(self.beta) * math.pi \
+                      / (2.0 * math.sqrt(alpha) * math.sqrt(alpha * self.beta + 1.0))
+
+                if (yeta[j] < 0.5):
+                    if (self.stretched == 1):
+                        yp[j] = xnum1 - cst - yinf
+                    elif (self.stretched == 2):
+                        yp[j] = xnum1 - cst + self.Ly
+                    else:
+                        yp[j] = 2 * (xnum1 - cst + self.Ly)
+                elif (yeta[j] > 0.5):
+                    if (self.stretched == 1):
+                        yp[j] = xnum1 + cst - yinf
+                    elif (self.stretched == 2):
+                        yp[j] = xnum1 + cst + self.Ly
+                    else:
+                        yp[j] = 2 * (xnum1 - cst + self.Ly)
+                else:
+                    if (self.stretched == 1):
+                        yp[j] = -yinf
+                    elif (self.stretched == 2):
+                        yp[j] = self.Ly
+                    else:
+                        yp[j] = 2 * self.Ly
+        else:
+            yp[0] = -1e10
+            for j in range(1, self.Ny):
+                yeta[j] = (j - 1.0) / float(self.Ny)
+                yp[j] = -self.beta * math.cos(math.pi * yeta[j]) / math.sin(yeta[j] * math.pi)
+
+        return yp, yeta
+
+    def calc_ppy(self, yeta):
+
+        ppy = np.zeros(self.Ny)
+        alpha = self.calc_alpha()
+        
+        if (self.stretched == 3):
+            yetai = self.calc_yetai(alpha)
+            for j in range(self.Ny):
+                ppy[j] = self.Ly * (alpha / math.pi \
+                                    + (1.0 / math.pi / self.beta) * (math.sin(math.pi * yetai[j]))**2)
+        else:
+            for j in range(self.Ny):
+                ppy[j] = self.Ly * (alpha / math.pi \
+                                    + (1.0 / math.pi / self.beta) * (math.sin(math.pi * yeta[j]))**2)
+
+        return ppy
+
+    def calc_alpha(self):
+
+        yinf = -self.Ly / 2.0
+        den = 2.0 * self.beta * yinf
+        xnum = -(yinf + math.sqrt(math.pi**2 * self.beta**2 + yinf**2))
+
+        return abs(xnum / den)
+
+    def calc_yetai(self, alpha):
+
+        yetai = np.zeros(self.Ny)
+        
+        if (alpha != 0.0):
+            for j in range(self.Ny):
+                yetai[j] = (j - 0.5) * (0.5 / self.Nym) - 0.5
+
+        else:
+            for j in range(self.Ny):
+                yetai[j] = (j - 1.0) / self.Ny
+
+        return yetai
 
     def get_grid(self):
         """ Return the x,y,z arrays that describe the mesh. """
@@ -85,15 +220,12 @@ class Mesh():
         for i in range(self.Nx):
             x[i] = i * self.dx
             
-        if (not self.yp):
+        if (not self.yp.any()):
             for j in range(self.Ny):
                 y[j] = j * self.dy
         else:
-            with open(self.yp, "r") as ypfile:
-                j = 0
-                for row in ypfile:
-                    y[j] = float(row)
-                    j += 1
+            for j in range(self.Ny):
+                y[j] = self.yp[j]
                     
         for k in range(self.Nz):
             z[k] = k * self.dz

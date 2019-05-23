@@ -13,6 +13,8 @@ from .mesh import Mesh
 from .fields import Field
 import json
 
+OPTIONAL=["yp"]
+
 class InputReader():
     """
     InputReader is a helper class which parses json input files and provides an
@@ -40,7 +42,9 @@ class InputReader():
             "BCx": int,
             "BCy": int,
             "BCz": int,
-            "yp" : str            # Which yp.dat to read? Informs about mesh stretching
+            "yp" : str,            # Which yp.dat to read? Informs about mesh stretching
+            "beta" : float,
+            "stretched" : int
         }
 
         self._data_properties = {
@@ -112,14 +116,14 @@ class InputReader():
         propDict = {}
         properties = json_dict["properties"]
         for element in type_map:
-            if element not in properties:
+            if element in properties:
+                value, error = self._cast_to_type(type_map[element], properties[element])
+                if error is not None:
+                    raise error("'{}' must be of type '{}'".format(element, type_map[element]))
+
+                propDict[element] = value
+            elif element not in OPTIONAL:
                 raise KeyError("'{}' is required for object type '{}'".format(element, validated["type"]))
-
-            value, error = self._cast_to_type(type_map[element], properties[element])
-            if error is not None:
-                raise error("'{}' must be of type '{}'".format(element, type_map[element]))
-
-            propDict[element] = value
 
         validated["properties"] = propDict
 
