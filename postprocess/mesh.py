@@ -220,7 +220,7 @@ class Mesh():
         for i in range(self.Nx):
             x[i] = i * self.dx
             
-        if (not self.yp.any()):
+        if (self.yp == None) or (not self.yp.any()):
             for j in range(self.Ny):
                 y[j] = j * self.dy
         else:
