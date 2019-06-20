@@ -7,7 +7,7 @@
     "name": "mesh_example",
     "description": "Mesh example",
     "properties": {
-      "Nx": 128,
+      "Nx": 256,
       "Ny": 129,
       "Nz": 128,
       "Lx": 12.0,

@@ -18,14 +18,18 @@ from Py4Incompact3D.deriv.deriv import deriv
 from Py4Incompact3D.tools.misc import avg_over_axis
 
 INPUT_FILE="input.json"
+#INPUT_FILE="input-2ndorder.json"
 RE=4200.0 # Bulk Reynolds number
-NTIME=60000
+NTIME=200000
 HDR="=" * 72
 LINE="-" * 72
 
 # Location of reference data
 REFLEE="/home/paul/DATA/benchmarking/channel-flow/data_lee_retau180.txt"
-REFVREM="/home/paul/DATA/benchmarking/channel-flow/data_vreman_retau180.txt"
+REFLEEPRIME="/home/paul/DATA/benchmarking/channel-flow/data_lee_fluct_retau180.txt"
+REFVREMU="/home/paul/DATA/benchmarking/channel-flow/data_vreman_u_retau180.txt"
+REFVREMV="/home/paul/DATA/benchmarking/channel-flow/data_vreman_v_retau180.txt"
+REFVREMW="/home/paul/DATA/benchmarking/channel-flow/data_vreman_w_retau180.txt"
 
 def main ():
 
@@ -38,7 +42,9 @@ def main ():
     mesh = postprocess.mesh
     yp = mesh.get_grid()[1]
 
-    t = "0100000" # This is the timestamp of the latest statistic output
+    # t = "0170000" # This is the timestamp of the latest statistic output
+    t = "0300000" # This is the timestamp of the latest statistic output
+    # t = "_full" # This is the "timestamp" of the full statistics
     postprocess.load(time=[t])
 
     # Convert to time mean
@@ -90,6 +96,10 @@ def main ():
     uprime = uumean - umean**2
     vprime = vvmean - vmean**2
     wprime = wwmean - wmean**2
+    for i in range(len(uprime)):
+        uprime[i] = math.sqrt(uprime[i])
+        vprime[i] = math.sqrt(vprime[i])
+        wprime[i] = math.sqrt(wprime[i])
 
     # # Solutions are symmetric
     # umean = apply_symmetry(umean)
@@ -99,30 +109,84 @@ def main ():
 
     # yp = yp[:len(umean)]
 
+    # Limit to yp <= Re_tau
+    umean = limit_to_retau(umean, yp, Retau)
+    uprime = limit_to_retau(uprime, yp, Retau)
+    vprime = limit_to_retau(vprime, yp, Retau)
+    wprime = limit_to_retau(wprime, yp, Retau)
+    yp = limit_to_retau(yp, yp, Retau)
+    print(max(yp))
+
     # Plot
     print("Plotting...")
-    
+
+    plt.figure(figsize=(5.0, 3.5))
     plt.plot(yp, umean, label="X3D",
              color="red")
 
     yplee, ulee = read_lee(REFLEE)
     plt.plot(yplee, ulee, label="LEE",
-             color="blue",
-             ls="", marker="*")
+             color="black",
+             ls="", marker="x",
+             markevery=2)
 
-    ypvrem, uvrem = read_vreman(REFVREM)
+    ypvrem, uvrem = read_vreman(REFVREMU)
     plt.plot(ypvrem, uvrem, label="VREMAN",
              color="black",
-             ls="", marker="+")
+             ls="", marker="+",
+             markevery=3)
     
     plt.xlabel(r"$y_+$")
-    plt.ylabel(r"$\left< u_+ \right>$")
+    plt.ylabel(r"$U_+$")
     plt.xscale("log")
     plt.xlim((yp[1], 200))
     plt.ylim(ymin=0)
     plt.legend(loc="upper left",
                numpoints=1)
-    plt.savefig("umean.eps", bbox_inches="tight")
+    plt.savefig("umean" + t + ".eps", bbox_inches="tight")
+    plt.close()
+
+    plt.figure(figsize=(5.0, 3.5))
+    plt.plot(yp, uprime, label="u'",
+             color="black")
+    plt.plot(yp, vprime, label="v'",
+             color="blue")
+    plt.plot(yp, wprime, label="w'",
+             color="red")
+
+    yplee, uprime_lee, vprime_lee, wprime_lee = read_lee_prime(REFLEEPRIME)
+    plt.plot(yplee, uprime_lee,
+             color="black",
+             ls="", marker="x",
+             markevery=2)
+    plt.plot(yplee, vprime_lee,
+             color="blue",
+             ls="", marker="x",
+             markevery=2)
+    plt.plot(yplee, wprime_lee,
+             color="red",
+             ls="", marker="x",
+             markevery=2)
+    ypvrem, uprime_vrem, vprime_vrem, wprime_vrem = read_vreman_prime(REFVREMU, REFVREMV, REFVREMW)
+    plt.plot(ypvrem, uprime_vrem,
+             color="black",
+             ls="", marker="+",
+             markevery=3)
+    plt.plot(ypvrem, vprime_vrem,
+             color="blue",
+             ls="", marker="+",
+             markevery=3)
+    plt.plot(ypvrem, wprime_vrem,
+             color="red",
+             ls="", marker="+",
+             markevery=3)
+
+    plt.xlabel(r"$y_+$")
+    plt.ylabel(r"$\langle u'_+ \rangle$")
+    plt.xlim((yp[1], 180))
+    plt.legend()
+    plt.savefig("velprime" + t + ".eps", bbox_inches="tight")
+    plt.close()
 
     # Save to file
     outfile = "channel.csv"
@@ -153,6 +217,24 @@ def read_lee(filepath):
 
     return yp, u
 
+def read_lee_prime(filepath):
+
+    u = []
+    v = []
+    w = []
+    yp = []
+    with open(filepath, "r") as datfile:
+        for row in datfile:
+            if "%" not in row:
+                words = row.split()
+                if len(words):
+                    u.append(math.sqrt(float(words[2])))
+                    v.append(math.sqrt(float(words[3])))
+                    w.append(math.sqrt(float(words[4])))
+                    yp.append(float(words[1]))
+
+    return yp, u, v, w
+
 def read_vreman(filepath):
 
     u = []
@@ -166,6 +248,42 @@ def read_vreman(filepath):
                     yp.append(float(words[0]))
 
     return yp, u
+
+def read_vreman_prime(filepathu, filepathv, filepathw):
+
+    u = []
+    v = []
+    w = []
+    yp = []
+    with open(filepathu, "r") as datfile:
+        for row in datfile:
+            if "%" not in row:
+                words = row.split()
+                if len(words):
+                    u.append(float(words[2]))
+                    yp.append(float(words[0]))
+    with open(filepathv, "r") as datfile:
+        for row in datfile:
+            if "%" not in row:
+                words = row.split()
+                if len(words):
+                    v.append(float(words[2]))
+    with open(filepathw, "r") as datfile:
+        for row in datfile:
+            if "%" not in row:
+                words = row.split()
+                if len(words):
+                    w.append(float(words[2]))
+
+    return yp, u, v, w
+
+def limit_to_retau(phi, yp, retau):
+
+    phi_limited = []
+    for i in range(len(yp)):
+        if yp[i] <= retau:
+            phi_limited.append(phi[i])
+    return phi_limited
     
 if __name__ == "__main__":
     main()
