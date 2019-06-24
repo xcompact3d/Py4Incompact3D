@@ -8,7 +8,7 @@
     "description": "Mesh example",
     "properties": {
       "Nx": 256,
-      "Ny": 129,
+      "Ny": 161,
       "Nz": 128,
       "Lx": 12.0,
       "Ly": 2.0,
@@ -16,8 +16,8 @@
       "BCx": 0,
       "BCy": 2,
       "BCz": 0,
-      "yp" : "/home/paul/DATA/Incompact3d/channel/re180/yp.dat",
-      "beta" : 0.259065151,
+      "yp" : "/home/paul/DATA/Incompact3d/channel-ibm/yp.dat",
+      "beta" : 0.27,
       "stretched" : 2
     }
   },
@@ -26,7 +26,7 @@
 		"name": "umean",
 		"description": "Mean x velocity",
 		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/channel/re180/umean.dat",
+			"filename": "/home/paul/DATA/Incompact3d/channel-ibm/umean.dat",
 			"direction": [0]
 		}
 	},
@@ -35,7 +35,7 @@
 		"name": "uumean",
 		"description": "Mean square x velocity",
 		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/channel/re180/uumean.dat",
+			"filename": "/home/paul/DATA/Incompact3d/channel-ibm/uumean.dat",
 			"direction": [0]
 		}
 	},
@@ -44,7 +44,7 @@
 		"name": "vmean",
 		"description": "Mean x velocity",
 		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/channel/re180/vmean.dat",
+			"filename": "/home/paul/DATA/Incompact3d/channel-ibm/vmean.dat",
 			"direction": [0]
 		}
 	},
@@ -53,7 +53,7 @@
 		"name": "vvmean",
 		"description": "Mean square x velocity",
 		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/channel/re180/vvmean.dat",
+			"filename": "/home/paul/DATA/Incompact3d/channel-ibm/vvmean.dat",
 			"direction": [0]
 		}
 	},
@@ -62,7 +62,7 @@
 		"name": "wmean",
 		"description": "Mean x velocity",
 		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/channel/re180/wmean.dat",
+			"filename": "/home/paul/DATA/Incompact3d/channel-ibm/wmean.dat",
 			"direction": [0]
 		}
 	},
@@ -71,7 +71,7 @@
 		"name": "wwmean",
 		"description": "Mean square x velocity",
 		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/channel/re180/wwmean.dat",
+			"filename": "/home/paul/DATA/Incompact3d/channel-ibm/wwmean.dat",
 			"direction": [0]
 		}
 	}

@@ -31,6 +31,10 @@ REFVREMU="/home/paul/DATA/benchmarking/channel-flow/data_vreman_u_retau180.txt"
 REFVREMV="/home/paul/DATA/benchmarking/channel-flow/data_vreman_v_retau180.txt"
 REFVREMW="/home/paul/DATA/benchmarking/channel-flow/data_vreman_w_retau180.txt"
 
+# Start and end of arrays
+FIRST=15
+LAST=FIRST+129+1
+
 def main ():
 
     print(HDR)
@@ -70,6 +74,28 @@ def main ():
 
     dUdy = avg_over_axis(mesh, avg_over_axis(mesh, dUdy, 2), 0)
 
+    # Account for IBM in averages
+    umean *= (129 + 2 * 16) / 129
+    vmean *= (129 + 2 * 16) / 129
+    wmean *= (129 + 2 * 16) / 129
+
+    uumean *= (129 + 2 * 16) / 129
+    vvmean *= (129 + 2 * 16) / 129
+    wwmean *= (129 + 2 * 16) / 129
+
+    dUdy *= (129 + 2 * 16) / 129
+
+    # Extract non-IBM subets
+    umean = umean[FIRST:LAST]
+    vmean = vmean[FIRST:LAST]
+    wmean = wmean[FIRST:LAST]
+
+    uumean = uumean[FIRST:LAST]
+    vvmean = vvmean[FIRST:LAST]
+    wwmean = wwmean[FIRST:LAST]
+
+    dUdy = dUdy[FIRST:LAST]
+
     # Compute friction velocity
     dUdy = (abs(dUdy[0]) + abs(dUdy[-1])) / 2
     dUdy = ((umean[1] - umean[0]) / (mesh.yp[1] - mesh.yp[0]) \
@@ -97,6 +123,7 @@ def main ():
     vprime = vvmean - vmean**2
     wprime = wwmean - wmean**2
     for i in range(len(uprime)):
+        print(i, uprime[i])
         uprime[i] = math.sqrt(uprime[i])
         vprime[i] = math.sqrt(vprime[i])
         wprime[i] = math.sqrt(wprime[i])
