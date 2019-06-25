@@ -1,0 +1,57 @@
+{
+  "type": "postprocess_input",
+  "name": "",
+  "description": "Example Py4Incompact3D Postprocess Input file",
+  "mesh": {
+    "type": "mesh",
+    "name": "mesh_example",
+    "description": "Mesh example",
+    "properties": {
+      "Nx": 513,
+      "Ny": 256,
+      "Nz": 128,
+      "Lx": 20.0,
+      "Ly": 12.0,
+      "Lz": 6.0,
+      "BCx": 2,
+      "BCy": 0,
+      "BCz": 0
+    }
+  },
+	"umean1": {
+		"type": "data",
+		"name": "umean",
+		"description": "Mean x velocity",
+		"properties": {
+			"filename": "/home/paul/DATA/Incompact3d/cylinder/iibm1/umean.dat",
+			"direction": [0]
+		}
+	},
+	"uumean1": {
+		"type": "data",
+		"name": "uumean",
+		"description": "Mean square x velocity",
+		"properties": {
+			"filename": "/home/paul/DATA/Incompact3d/cylinder/iibm1/uumean.dat",
+			"direction": [0]
+		}
+	},
+	"umean2": {
+		"type": "data",
+		"name": "umean",
+		"description": "Mean x velocity",
+		"properties": {
+			"filename": "/home/paul/DATA/Incompact3d/cylinder/iibm2/umean.dat",
+			"direction": [0]
+		}
+	},
+	"uumean2": {
+		"type": "data",
+		"name": "uumean",
+		"description": "Mean square x velocity",
+		"properties": {
+			"filename": "/home/paul/DATA/Incompact3d/cylinder/iibm2/uumean.dat",
+			"direction": [0]
+		}
+	}
+}
