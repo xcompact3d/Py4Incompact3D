@@ -31,9 +31,9 @@ REFVREMU="/home/paul/DATA/benchmarking/channel-flow/data_vreman_u_retau180.txt"
 REFVREMV="/home/paul/DATA/benchmarking/channel-flow/data_vreman_v_retau180.txt"
 REFVREMW="/home/paul/DATA/benchmarking/channel-flow/data_vreman_w_retau180.txt"
 
-# Start and end of arrays
-FIRST=15
-LAST=FIRST+129+1
+# Start and end of arrays of interest
+FIRST=0       # Where does the IBM start (N.B. counts from zero)
+LAST=FIRST+129 # Where does the channel end?
 
 def main ():
 
@@ -73,17 +73,6 @@ def main ():
     wwmean = avg_over_axis(mesh, avg_over_axis(mesh, wwmean, 2), 0)
 
     dUdy = avg_over_axis(mesh, avg_over_axis(mesh, dUdy, 2), 0)
-
-    # Account for IBM in averages
-    umean *= (129 + 2 * 16) / 129
-    vmean *= (129 + 2 * 16) / 129
-    wmean *= (129 + 2 * 16) / 129
-
-    uumean *= (129 + 2 * 16) / 129
-    vvmean *= (129 + 2 * 16) / 129
-    wwmean *= (129 + 2 * 16) / 129
-
-    dUdy *= (129 + 2 * 16) / 129
 
     # Extract non-IBM subets
     umean = umean[FIRST:LAST]
