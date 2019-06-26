@@ -72,7 +72,7 @@ def main ():
     vvmean = avg_over_axis(mesh, avg_over_axis(mesh, vvmean, 2), 0)
     wwmean = avg_over_axis(mesh, avg_over_axis(mesh, wwmean, 2), 0)
 
-    dUdy = avg_over_axis(mesh, avg_over_axis(mesh, dUdy, 2), 0)
+    # dUdy = avg_over_axis(mesh, avg_over_axis(mesh, dUdy, 2), 0)
 
     # Extract non-IBM subets
     umean = umean[FIRST:LAST]
@@ -83,14 +83,29 @@ def main ():
     vvmean = vvmean[FIRST:LAST]
     wwmean = wwmean[FIRST:LAST]
 
-    dUdy = dUdy[FIRST:LAST]
+    # dUdy = dUdy[FIRST:LAST]
+    yp = mesh.yp[FIRST:LAST]
+    yp -= yp[0]
+
+    # Solutions are symmetric
+    umean = apply_symmetry(umean)
+    vmean = apply_symmetry(vmean)
+    wmean = apply_symmetry(wmean)
+
+    uumean = apply_symmetry(uumean)
+    vvmean = apply_symmetry(vvmean)
+    wwmean = apply_symmetry(wwmean)
+
+    print(umean[-1])
+
+    yp = yp[:len(umean)]
 
     # Compute friction velocity
-    dUdy = (abs(dUdy[0]) + abs(dUdy[-1])) / 2
-    dUdy = ((umean[1] - umean[0]) / (mesh.yp[1] - mesh.yp[0]) \
-            + abs((umean[-2] - umean[-1]) / (mesh.yp[-2] - mesh.yp[-1]))) / 2
+    # dUdy = (abs(dUdy[0]) + abs(dUdy[-1])) / 2
+    dUdy = (umean[1] - umean[0]) / (yp[1] - yp[0])
     tauw = dUdy / RE
     utau = math.sqrt(tauw)
+    yp1 = utau * yp[1] / RE
     Retau = RE * utau
 
     msg = " Achieved u_tau = " + str(utau) + "; Re_tau = " + str(Retau)
@@ -98,6 +113,8 @@ def main ():
 
     # Re-scale to wall units
     yp *= utau * RE
+    msg = "y+ = " + str(yp[1])
+    print(msg)
     
     umean /= utau
     vmean /= utau
@@ -112,26 +129,16 @@ def main ():
     vprime = vvmean - vmean**2
     wprime = wwmean - wmean**2
     for i in range(len(uprime)):
-        print(i, uprime[i])
         uprime[i] = math.sqrt(uprime[i])
         vprime[i] = math.sqrt(vprime[i])
         wprime[i] = math.sqrt(wprime[i])
 
-    # # Solutions are symmetric
-    # umean = apply_symmetry(umean)
-    # uprime = apply_symmetry(uprime)
-    # vprime = apply_symmetry(vprime)
-    # wprime = apply_symmetry(wprime)
-
-    # yp = yp[:len(umean)]
-
-    # Limit to yp <= Re_tau
-    umean = limit_to_retau(umean, yp, Retau)
-    uprime = limit_to_retau(uprime, yp, Retau)
-    vprime = limit_to_retau(vprime, yp, Retau)
-    wprime = limit_to_retau(wprime, yp, Retau)
-    yp = limit_to_retau(yp, yp, Retau)
-    print(max(yp))
+    # # Limit to yp <= Re_tau
+    # umean = limit_to_retau(umean, yp, Retau)
+    # uprime = limit_to_retau(uprime, yp, Retau)
+    # vprime = limit_to_retau(vprime, yp, Retau)
+    # wprime = limit_to_retau(wprime, yp, Retau)
+    # yp = limit_to_retau(yp, yp, Retau)
 
     # Plot
     print("Plotting...")
@@ -155,7 +162,8 @@ def main ():
     plt.xlabel(r"$y_+$")
     plt.ylabel(r"$U_+$")
     plt.xscale("log")
-    plt.xlim((yp[1], 200))
+    # plt.xlim((yp[1], 200))
+    plt.xlim((1, 200))
     plt.ylim(ymin=0)
     plt.legend(loc="upper left",
                numpoints=1)
@@ -199,7 +207,7 @@ def main ():
 
     plt.xlabel(r"$y_+$")
     plt.ylabel(r"$\langle u'_+ \rangle$")
-    plt.xlim((yp[1], 180))
+    plt.xlim(xmin=yp[1])
     plt.legend()
     plt.savefig("velprime" + t + ".eps", bbox_inches="tight")
     plt.close()
@@ -300,6 +308,24 @@ def limit_to_retau(phi, yp, retau):
         if yp[i] <= retau:
             phi_limited.append(phi[i])
     return phi_limited
+
+def apply_symmetry(prof):
+
+    N = len(prof)
+    n = int(N / 2)
+
+    if (N / 2) > n:
+        symprof = np.zeros(n + 1)
+    else:
+        symprof = np.zeros(n)
+
+    for i in range(n):
+        symprof[i] = 0.5 * (prof[i] + prof[-(i + 1)])
+
+    if (N / 2) > n:
+        symprof[n] = prof[n]
+
+    return symprof
     
 if __name__ == "__main__":
     main()
