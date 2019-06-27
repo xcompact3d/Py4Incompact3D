@@ -44,6 +44,9 @@ def main():
     umean2 = avg_over_axis(mesh, umean2, 2)
     uumean2 = avg_over_axis(mesh, uumean2, 2)
 
+    uprime1 = uumean1 - umean1**2
+    uprime2 = uumean2 - umean2**2
+
     # Plot vs. reference data
     plt.figure(figsize=(FIGX, FIGY))
     
@@ -55,7 +58,7 @@ def main():
         y = offset_by_axialdist(y, key)
         x = [j * mesh.dy - 0.5 * mesh.Ly for j in range(mesh.Ny)]
         x = get_subrange(x, mesh.dy, Y0, -2, +2)
-        plt.plot(x, y,
+        plt.plot(x, y, color="black",
                  ls="-")
         
         y = get_nearest_profile(umean2, mesh, get_axialdist(key) + X0)
@@ -64,14 +67,14 @@ def main():
         y = offset_by_axialdist(y, key)
         x = [j * mesh.dy - 0.5 * mesh.Ly for j in range(mesh.Ny)]
         x = get_subrange(x, mesh.dy, Y0, -2, +2)
-        plt.plot(x, y,
+        plt.plot(x, y, color="red",
                  ls="--")
         
         x, y = get_xydata(umean_ref, key)
         y = zero_offset(y)
         y = offset_by_axialdist(y, key)
         plt.plot(x, y,
-                 ls="",
+                 ls="", color="black",
                  marker="d")
 
     plt.xlim((-2, 2))
@@ -84,35 +87,35 @@ def main():
 
     uumean_ref = (read_refdat(REFPATH+REFUUMEAN))
     for key in uumean_ref:
-        y = get_nearest_profile(uumean1, mesh, get_axialdist(key) + X0)
+        y = get_nearest_profile(uprime1, mesh, get_axialdist(key) + X0)
         y = get_subrange(y, mesh.dy, Y0, -2, +2)
         y = zero_offset(y)
         y = offset_by_axialdist(y, key)
         x = [j * mesh.dy - 0.5 * mesh.Ly for j in range(mesh.Ny)]
         x = get_subrange(x, mesh.dy, Y0, -2, +2)
-        plt.plot(x, y,
+        plt.plot(x, y, color="black",
                  ls="-")
         
-        y = get_nearest_profile(uumean2, mesh, get_axialdist(key) + X0)
+        y = get_nearest_profile(uprime2, mesh, get_axialdist(key) + X0)
         y = get_subrange(y, mesh.dy, Y0, -2, +2)
         y = zero_offset(y)
         y = offset_by_axialdist(y, key)
         x = [j * mesh.dy - 0.5 * mesh.Ly for j in range(mesh.Ny)]
         x = get_subrange(x, mesh.dy, Y0, -2, +2)
-        plt.plot(x, y,
+        plt.plot(x, y, color="red",
                  ls="--")
         
         x, y = get_xydata(uumean_ref, key)
         y = zero_offset(y)
         y = offset_by_axialdist(y, key)
         plt.plot(x, y,
-                 ls="",
+                 ls="", color="black",
                  marker="d")
 
     plt.xlim((-2, 2))
     # plt.ylim((-3.5, -0.5))
     plt.xlabel(r"$y$")
-    plt.ylabel(r"$\langle uu \rangle$")
+    plt.ylabel(r"$\langle u' u' \rangle$")
     plt.savefig("uumean.eps", bbox_inches="tight")
 
 def zero_offset(y):
