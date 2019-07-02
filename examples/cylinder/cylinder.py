@@ -38,14 +38,27 @@ def main():
     uumean1 = postprocess.fields["uumean1"].data[t] / float(NTIME)
     umean2 = postprocess.fields["umean2"].data[t] / float(NTIME)
     uumean2 = postprocess.fields["uumean2"].data[t] / float(NTIME)
+    
+    umean1_o2 = postprocess.fields["umean1-o2"].data[t] / float(NTIME)
+    uumean1_o2 = postprocess.fields["uumean1-o2"].data[t] / float(NTIME)
+    umean2_o2 = postprocess.fields["umean2-o2"].data[t] / float(NTIME)
+    uumean2_o2 = postprocess.fields["uumean2-o2"].data[t] / float(NTIME)
 
     umean1 = avg_over_axis(mesh, umean1, 2)
     uumean1 = avg_over_axis(mesh, uumean1, 2)
     umean2 = avg_over_axis(mesh, umean2, 2)
     uumean2 = avg_over_axis(mesh, uumean2, 2)
 
+    umean1_o2 = avg_over_axis(mesh, umean1_o2, 2)
+    uumean1_o2 = avg_over_axis(mesh, uumean1_o2, 2)
+    umean2_o2 = avg_over_axis(mesh, umean2_o2, 2)
+    uumean2_o2 = avg_over_axis(mesh, uumean2_o2, 2)
+
     uprime1 = uumean1 - umean1**2
     uprime2 = uumean2 - umean2**2
+    
+    uprime1_o2 = uumean1_o2 - umean1_o2**2
+    uprime2_o2 = uumean2_o2 - umean2_o2**2
 
     # Plot vs. reference data
     plt.figure(figsize=(FIGX, FIGY))
@@ -69,6 +82,24 @@ def main():
         x = get_subrange(x, mesh.dy, Y0, -2, +2)
         plt.plot(x, y, color="red",
                  ls="--")
+        
+        y = get_nearest_profile(umean1_o2, mesh, get_axialdist(key) + X0)
+        y = get_subrange(y, mesh.dy, Y0, -2, +2)
+        y = zero_offset(y)
+        y = offset_by_axialdist(y, key)
+        x = [j * mesh.dy - 0.5 * mesh.Ly for j in range(mesh.Ny)]
+        x = get_subrange(x, mesh.dy, Y0, -2, +2)
+        plt.plot(x, y, color="blue",
+                 ls="-.")
+        
+        y = get_nearest_profile(umean2_o2, mesh, get_axialdist(key) + X0)
+        y = get_subrange(y, mesh.dy, Y0, -2, +2)
+        y = zero_offset(y)
+        y = offset_by_axialdist(y, key)
+        x = [j * mesh.dy - 0.5 * mesh.Ly for j in range(mesh.Ny)]
+        x = get_subrange(x, mesh.dy, Y0, -2, +2)
+        plt.plot(x, y, color="orange",
+                 ls=":")
         
         x, y = get_xydata(umean_ref, key)
         y = zero_offset(y)
@@ -104,6 +135,24 @@ def main():
         x = get_subrange(x, mesh.dy, Y0, -2, +2)
         plt.plot(x, y, color="red",
                  ls="--")
+        
+        y = get_nearest_profile(uprime1_o2, mesh, get_axialdist(key) + X0)
+        y = get_subrange(y, mesh.dy, Y0, -2, +2)
+        y = zero_offset(y)
+        y = offset_by_axialdist(y, key)
+        x = [j * mesh.dy - 0.5 * mesh.Ly for j in range(mesh.Ny)]
+        x = get_subrange(x, mesh.dy, Y0, -2, +2)
+        plt.plot(x, y, color="blue",
+                 ls="-.")
+        
+        y = get_nearest_profile(uprime2_o2, mesh, get_axialdist(key) + X0)
+        y = get_subrange(y, mesh.dy, Y0, -2, +2)
+        y = zero_offset(y)
+        y = offset_by_axialdist(y, key)
+        x = [j * mesh.dy - 0.5 * mesh.Ly for j in range(mesh.Ny)]
+        x = get_subrange(x, mesh.dy, Y0, -2, +2)
+        plt.plot(x, y, color="orange",
+                 ls=":")
         
         x, y = get_xydata(uumean_ref, key)
         y = zero_offset(y)
