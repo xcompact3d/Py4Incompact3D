@@ -7,9 +7,9 @@
     "name": "mesh_example",
     "description": "Mesh example",
     "properties": {
-      "Nx": 65,
-      "Ny": 65,
-      "Nz": 65,
+      "Nx": 129,
+      "Ny": 129,
+      "Nz": 129,
       "Lx": 3.141592653589793,
       "Ly": 3.141592653589793,
       "Lz": 3.141592653589793,
@@ -23,7 +23,7 @@
 		"name": "ux",
 		"description": "Instantaneous x velocity",
 		"properties": {
-			"filename": "/home/paul/src/org/data-analysis/eCSE1303/tgv/x3d/ux",
+			"filename": "/media/yorgos/HardDrive2/TGV/SS/ux",
 			"direction": [0]
 		}
 	},
@@ -32,7 +32,7 @@
 		"name": "uy",
 		"description": "Instantaneous y velocity",
 		"properties": {
-			"filename": "/home/paul/src/org/data-analysis/eCSE1303/tgv/x3d/uy",
+			"filename": "/media/yorgos/HardDrive2/TGV/SS/uy",
 			"direction": [1]
 		}
 	},
@@ -41,7 +41,7 @@
 		"name": "uz",
 		"description": "Instantaneous y velocity",
 		"properties": {
-			"filename": "/home/paul/src/org/data-analysis/eCSE1303/tgv/x3d/uz",
+			"filename": "/media/yorgos/HardDrive2/TGV/SS/uz",
 			"direction": [2]
 		}
 	}
