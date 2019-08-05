@@ -7,24 +7,42 @@
     "name": "mesh_example",
     "description": "Mesh example",
     "properties": {
-      "Nx": 4097,
-      "Ny": 257,
-      "Nz": 8,
-      "Lx": 32.0,
-      "Ly": 1.0,
-      "Lz": 1.0,
+      "Nx": 1441,
+      "Ny": 225,
+      "Nz": 209,
+      "Lx": 18.0,
+      "Ly": 2.0,
+      "Lz": 2.0,
       "BCx": 1,
-      "BCy": 1,
-      "BCz": 0
+      "BCy": 2,
+      "BCz": 1
     }
   },
-	"rho": {
+	"ux": {
 		"type": "data",
-		"name": "rho",
-		"description": "Instantaneous density",
+		"name": "ux",
+		"description": "Instantaneous velocity",
 		"properties": {
-			"filename": "../DATA/varcoeff/gamma0.2/rho",
-			"direction": [-1]
+			"filename": "/home/paul/DATA/Incompact3d/lock-exchange/boussinesq-uset02/ux",
+			"direction": [0]
 		}
-	}
+  },
+	"uy": {
+		"type": "data",
+		"name": "uy",
+		"description": "Instantaneous velocity",
+		"properties": {
+			"filename": "/home/paul/DATA/Incompact3d/lock-exchange/boussinesq-uset02/uy",
+			"direction": [1]
+		}
+  },
+	"ux": {
+		"type": "data",
+		"name": "uz",
+		"description": "Instantaneous velocity",
+		"properties": {
+			"filename": "/home/paul/DATA/Incompact3d/lock-exchange/boussinesq-uset02/uz",
+			"direction": [2]
+		}
+  }
 }

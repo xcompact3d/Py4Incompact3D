@@ -8,6 +8,9 @@ import csv
 import math
 
 import numpy as np
+
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 plt.rc("text", usetex=True)
 plt.rc("font", family="serif")
@@ -17,10 +20,10 @@ from Py4Incompact3D.postprocess.postprocess import Postprocess
 from Py4Incompact3D.deriv.deriv import deriv
 from Py4Incompact3D.tools.misc import avg_over_axis
 
-INPUT_FILE="input.json"
-#INPUT_FILE="input-2ndorder.json"
+#INPUT_FILE="input.json"
+INPUT_FILE="input-2ndorder.json"
 RE=4200.0 # Bulk Reynolds number
-NTIME=200000
+NTIME=150000 #400000
 HDR="=" * 72
 LINE="-" * 72
 
@@ -47,7 +50,7 @@ def main ():
     yp = mesh.get_grid()[1]
 
     # t = "0170000" # This is the timestamp of the latest statistic output
-    t = "0300000" # This is the timestamp of the latest statistic output
+    t = "0600000" # This is the timestamp of the latest statistic output
     # t = "_full" # This is the "timestamp" of the full statistics
     postprocess.load(time=[t])
 
@@ -207,7 +210,7 @@ def main ():
 
     plt.xlabel(r"$y_+$")
     plt.ylabel(r"$\langle u'_+ \rangle$")
-    plt.xlim(xmin=yp[1])
+    plt.xlim((yp[1], 180))
     plt.legend()
     plt.savefig("velprime" + t + ".eps", bbox_inches="tight")
     plt.close()

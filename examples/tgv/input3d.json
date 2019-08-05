@@ -23,25 +23,25 @@
 		"name": "ux",
 		"description": "Instantaneous x velocity",
 		"properties": {
-			"filename": "/media/yorgos/HardDrive2/TGV/SS/ux",
+			"filename": "/home/paul/DATA/Incompact3d/tgv_comp/x3d-129-2ndorder/ux",
 			"direction": [0]
 		}
 	},
 	"uy": {
 		"type": "data",
 		"name": "uy",
-		"description": "Instantaneous y velocity",
+		"description": "Instantaneous x velocity",
 		"properties": {
-			"filename": "/media/yorgos/HardDrive2/TGV/SS/uy",
+			"filename": "/home/paul/DATA/Incompact3d/tgv_comp/x3d-129-2ndorder/uy",
 			"direction": [1]
 		}
 	},
 	"uz": {
 		"type": "data",
 		"name": "uz",
-		"description": "Instantaneous y velocity",
+		"description": "Instantaneous x velocity",
 		"properties": {
-			"filename": "/media/yorgos/HardDrive2/TGV/SS/uz",
+			"filename": "/home/paul/DATA/Incompact3d/tgv_comp/x3d-129-2ndorder/uz",
 			"direction": [2]
 		}
 	}

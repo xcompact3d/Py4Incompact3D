@@ -8,23 +8,34 @@ import math
 
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rc("text", usetex=True)
+plt.rc("font", family="serif")
+plt.rc("font", size=11)
 
 from Py4Incompact3D.postprocess.postprocess import Postprocess
 from Py4Incompact3D.tools.misc import avg_over_axis
 
-CASES=["CS6-33",
+CASES=["CS6-9",
+       "CS6-17",
+       "CS6-33",
        "CS6-65",
        "CS6-129",
        "CS6-257",
+       "FD2-9",
+       "FD2-17",
        "FD2-33",
        "FD2-65",
        "FD2-129",
        "FD2-257"
 ]
-INPUT={"CS6-33":"input-cs633.json",
+INPUT={"CS6-9":"input-cs69.json",
+       "CS6-17":"input-cs617.json",
+       "CS6-33":"input-cs633.json",
        "CS6-65":"input-cs665.json",
        "CS6-129":"input-cs6129.json",
        "CS6-257":"input-cs6257.json",
+       "FD2-9":"input-fd29.json",
+       "FD2-17":"input-fd217.json",
        "FD2-33":"input-fd233.json",
        "FD2-65":"input-fd265.json",
        "FD2-129":"input-fd2129.json",
@@ -56,7 +67,7 @@ def main():
 
         postprocess = Postprocess(INPUT[case])
 
-        time = range(NSTEP)
+        time = [10] #range(NSTEP)
         u = {}
         v = {}
         p = {}
@@ -90,16 +101,17 @@ def main():
                  ls="",
                  marker="o")
 
-    plt.plot([32, 256], [err["CS6"][33], err["CS6"][33] / (8**6)],
+    plt.plot([8, 256], [err["CS6"][9], err["CS6"][9] / ((256/8)**6)],
              color="black")
-    plt.plot([32, 256], [err["FD2"][33], err["FD2"][33] / (8**2)],
+    plt.plot([8, 256], [err["FD2"][9], err["FD2"][9] / ((256/8)**2)],
              color="black")
-    plt.legend()
+    plt.legend(loc="lower left",
+               numpoints=1)
     plt.xscale("log")
     plt.yscale("log")
     plt.xlabel("N")
     plt.ylabel(r"$\varepsilon_{RMS}$")
-    plt.show()
+    plt.savefig("convergence-tgv2d.eps", bbox_inches="tight")
 
 def calc_err(u, v, p, time, mesh):
 

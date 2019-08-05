@@ -7,14 +7,14 @@
     "name": "mesh_example",
     "description": "Mesh example",
     "properties": {
-      "Nx": 1281,
-      "Ny": 241,
-      "Nz": 241,
-      "Lx": 11.8,
-      "Ly": 1.8,
-      "Lz": 2.7,
-      "BCx": 2,
-      "BCy": 1,
+      "Nx": 1441,
+      "Ny": 225,
+      "Nz": 209,
+      "Lx": 18.0,
+      "Ly": 2.0,
+      "Lz": 2.0,
+      "BCx": 1,
+      "BCy": 2,
       "BCz": 1
     }
   },
@@ -23,7 +23,7 @@
 		"name": "ux",
 		"description": "Instantaneous x velocity",
 		"properties": {
-			"filename": "ux",
+			"filename": "/home/paul/DATA/Incompact3d/lock-exchange/non-boussinesq-r07/ux",
 			"direction": [0]
 		}
 	},
@@ -32,7 +32,7 @@
 		"name": "uy",
 		"description": "Instantaneous y velocity",
 		"properties": {
-			"filename": "uy",
+			"filename": "/home/paul/DATA/Incompact3d/lock-exchange/non-boussinesq-r07/uy",
 			"direction": [1]
 		}
 	},
@@ -41,7 +41,7 @@
 		"name": "uz",
 		"description": "Instantaneous z velocity",
 		"properties": {
-			"filename": "uz",
+			"filename": "/home/paul/DATA/Incompact3d/lock-exchange/non-boussinesq-r07/uz",
 			"direction": [2]
 		}
 	}
