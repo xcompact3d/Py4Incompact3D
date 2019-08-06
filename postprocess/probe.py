@@ -3,6 +3,7 @@
 """
 
 import numpy as np
+from scipy.io import FortranFile
 
 class Probe():
 
@@ -44,17 +45,19 @@ class Probe():
 
         ntime = len(fldat) // (nfields * nx * ny * nz + 1) # Note that Fortran adds a byte for new-line
 
-        fldat = np.reshape(fldat, (ntime, nfields * nx * ny * nz + 1), "F")
-        
+        bindat = FortranFile(self.file, "r")
+        fldat = []
+        for t in range(ntime):
+            fldat.append(bindat.read_reals(dtype=np.float64).reshape(nfields, nx, ny, nz))
+        bindat.close()
 
         fldict = {}
         for field in range(nfields):
             fldict[self.variables[field]] = []
 
         for t in range(ntime):
-            all_fields = np.reshape(fldat[t][1:], (nfields, nx, ny, nz)) # Get rid of the byte
             for f in range(nfields):
-                fldict[self.variables[f]].append(all_fields[f])
+                fldict[self.variables[f]].append(fldat[t][f])
 
         return fldict
         
