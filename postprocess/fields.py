@@ -10,34 +10,53 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+from warnings import warn
+
 import numpy as np
 
 class Field():
 
-    def __init__(self, instance_dictionary):
+    def __init__(self, *args, **kwargs):
 
         super().__init__()
+        
+        self.dtype = np.float64 # Default to double precision
+        self.fromfile = True # By default load from a file
 
-        self.fromfile = True
+        if len(args) == 1:
+            warn("You are using an old-style initialisation, the future is dynamic!", DeprecationWarning)
 
-        self.name = instance_dictionary["name"]
-        self.description = instance_dictionary["description"]
+            self.name = instance_dictionary["name"]
+            self.description = instance_dictionary["description"]
 
-        properties = instance_dictionary["properties"]
+            properties = instance_dictionary["properties"]
 
-        self.file_root = properties["filename"]
-        self.direction = properties["direction"]
+            self.file_root = properties["filename"]
+            self.direction = properties["direction"]
 
-        if "precision" in properties:
-            if properties["precision"] == "single":
-                self.dtype = np.float32
-            else:
-                self.dtype = np.float64
-        else: # Default to double precision
-            self.dtype = np.float64
+            if "precision" in properties:
+                if properties["precision"] == "single":
+                    self.dtype = np.float32
+                else:
+                    self.dtype = np.float64
 
-        if "fromfile" in properties:
-            self.fromfile = properties["fromfile"]
+            if "fromfile" in properties:
+                self.fromfile = properties["fromfile"]
+        else:
+            for arg, val in kwargs.items():
+                if arg == "name":
+                    self.name = val
+                elif arg == "description":
+                    self.description = val
+                elif arg == "file_root":
+                    self.file_root = val
+                elif arg == "direction":
+                    self.direction = val
+                elif arg == "precision":
+                    if val == "single":
+                        self.dtype = np.float32
+                    else:
+                        self.dtype = np.float64
 
         self.data = {}
 
@@ -123,7 +142,7 @@ class Field():
                 try:
                     filename = self.file_root + zeros + str(t)
                     self.data[t] = self._read(filename, mesh.Nx, mesh.Ny, mesh.Nz, self.dtype)
-                except:
+                except FileNotFoundError:
                     zeros += "0"
                 else:
                     read_success = True

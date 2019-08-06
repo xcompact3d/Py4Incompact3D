@@ -9,6 +9,8 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+from warnings import warn
+
 import math
 
 import numpy as np
@@ -21,9 +23,59 @@ class Mesh():
 
     """
 
-    def __init__(self,instance_dictionary):
+    def __init__(self, *arg, **kwargs):
 
         super().__init__()
+
+        # Set default values
+        self.Nx = 0; self.Ny = 0; self.Nz = 0
+        self.Lx = 0; self.Ly = 0; self.Lz = 0
+        self.BCx = -1; self.BCy = -1; self.BCz = -1
+
+        self.stretched = False
+        self.beta = 0
+        self.yp = None
+
+        # Figure out how to do initialisation
+        if len(arg) == 1:
+            warn("You are using an old-style initialisation, the future is dynamic!", DeprecationWarning)
+            self._init_fromjson(arg[0])
+        else:
+            self._init_new(*arg, **kwargs)
+
+        # Finish off initialisation
+        if self.Nx * self.Ny * self.Nz == 0:
+            raise RuntimeError("Need to set Nx, Ny and Nz")
+        elif self.Lx * self.Ly * self.Lz == 0:
+            raise RuntimeError("Need to set Lx, Ly and Lz")
+        elif (self.BCx == -1) or (self.BCy == -1) or (self.BCz == -1):
+            raise RuntimeError("Need to set boundary conditions!")
+
+    def _init_new(self, *args, **kwargs):
+
+        for arg, val in kwargs.items():
+            if arg == "n":
+                self.Nx = val[0]
+                self.Ny = val[1]
+                self.Nz = val[2]
+            elif arg == "l":
+                self.Lx = val[0]
+                self.Ly = val[1]
+                self.Lz = val[2]
+            elif arg == "bc":
+                self.BCx = val[0]
+                self.BCy = val[1]
+                self.BCz = val[2]
+            elif arg == "beta":
+                self.beta = val
+            elif arg == "stretched":
+                self.stretched = val
+            elif arg == "yp":
+                self.yp = val
+            else:
+                warn("Unrecognised input to mesh: %s" % arg)
+
+    def _init_fromjson(self, instance_dictionary):
 
         self.description = instance_dictionary["description"]
 
@@ -64,7 +116,7 @@ class Mesh():
             self.ppy = self.calc_ppy(yeta)
         else:
             self.yp = None
-
+        
     def get_grid(self):
 
         x = np.zeros(self.Nx)
