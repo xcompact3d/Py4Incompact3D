@@ -39,6 +39,8 @@ class Postprocess():
         self.fields, self.mesh = self._process_input()
         self.mesh.decomp2d(self.size, self.rank)
 
+        self.prow, self.pcol = self.mesh.compute_decomposition(self.comm_rank, self.comm_size)
+
     def _process_input(self):
         return self.input_reader.read(self.input_file)
 

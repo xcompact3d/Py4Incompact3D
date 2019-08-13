@@ -36,6 +36,13 @@ class Mesh():
         self.BCy = properties["BCy"]
         self.BCz = properties["BCz"]
 
+        self.pen_start = [[0, 0, 0],
+                          [0, 0, 0],
+                          [0, 0, 0]]
+        self.pen_end = [[self.Nx, 0, 0],
+                        [0, self.Ny, 0],
+                        [0, 0, self.Nz]]
+        
         # Once we know the mesh layout we can set the derivative variables
         self.compute_derivvars()
 
@@ -54,6 +61,40 @@ class Mesh():
 
         return x, y, z
 
+    def compute_pencil(self, axis, rank, prow, pcol):
+        """ """
+
+        if 0 == axis:
+            self.start[0][1] = (self.Ny // prow) * (rank // pcol)
+            self.end[0][1] = min((self.Ny // prow) * (1 + rank // pcol), self.Ny)
+
+            self.start[0][2] = (self.Nz // pcol) * (rank - (rank // prow) * pcol)
+            self.end[0][2] = min((self.Nz // pcol) * (1 + (rank - (rank // prow) * pcol)), self.Nz)
+        elif 1 == axis:
+            self.start[1][0] = (self.Nx // pcol) * (rank - (rank // prow) * pcol)
+            self.end[1][0] = min((self.Nx // pcol) * (1 + (rank - (rank // prow) * pcol)), self.Nx)
+
+            self.start[1][2] = (self.Nz // prow) * (rank // pcol)
+            self.end[1][2] = min((self.Nz // prow) * (1 + rank // pcol), self.Nz)
+        else:
+            self.start[2][0] = (self.Nx // pcol) * (rank - (rank // prow) * pcol)
+            self.end[2][0] = min((self.Nx // pcol) * (1 + (rank - (rank // prow) * pcol)), self.Nx)
+
+            self.start[2][1] = (self.Ny // prow) * (rank // pcol)
+            self.end[2][1] = min((self.Ny // prow) * (1 + rank // pcol), self.Ny)
+        
+    def compute_decomposition(self, comm_rank, comm_size):
+        """ Compute the "ideal" decomposition. """
+
+        prow = int(comm_size**0.5)
+        pcol = comm_size // prow
+
+        self.compute_pencil(0, comm_rank, prow, pcol)
+        self.compute_pencil(1, comm_rank, prow, pcol)
+        self.compute_pencil(2, comm_rank, prow, pcol)
+
+        return prow, pcol
+        
     def compute_derivvars(self):
         """ Compute variables required by derivative functions. """
         if (self.BCx==0):
