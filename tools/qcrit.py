@@ -8,7 +8,6 @@
 import numpy as np
 
 from Py4Incompact3D.tools.gradu import calc_gradu, get_gradu_tensor
-from Py4Incompact3D.tools.vort import get_vort_tensor
 from Py4Incompact3D.postprocess.fields import Field
 
 def calc_qcrit(postprocess, time=-1):
@@ -37,17 +36,6 @@ def calc_qcrit(postprocess, time=-1):
             calc_gradu(postprocess, t)
         gradu = get_gradu_tensor(postprocess, t)[t]
 
-        # Get vorticity tensor
-        vort = get_vort_tensor(postprocess, t)[t]
-
-        # Construct strain-rate tensor
-        S = [[0, 0, 0],
-             [0, 0, 0],
-             [0, 0, 0]]
-        for i in range(3):
-            for j in range(3):
-                S[i][j] = 0.5 * (gradu[i][j] + gradu[j][i])
-
         # Compute Q-criterion
         nx = postprocess.fields["ux"].data[t].shape[0]
         ny = postprocess.fields["ux"].data[t].shape[1]
@@ -56,7 +44,7 @@ def calc_qcrit(postprocess, time=-1):
                      dtype=postprocess.fields["ux"].dtype)
         for i in range(3):
             for j in range(3):
-                q += 0.5 * (vort[i][j] * vort[j][i] - S[i][j] * S[j][i])
+                q += 0.5 * gradu[i][j] * gradu[j][i]
 
         # Create Q field
         prop_dict = {"name":"Q",

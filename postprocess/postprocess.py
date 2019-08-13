@@ -1,4 +1,4 @@
-# Copyright 2018 Georgios Deskos
+# Copyright 2018 Georgios Deskos, Paul Bartholomew
 
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 # this file except in compliance with the License. You may obtain a copy of the
@@ -9,9 +9,15 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+from warnings import warn
+
 from mpi4py import MPI
 
 from .input_reader import InputReader
+from .mesh import Mesh
+from .fields import Field
+
+MESH_PROPERTIES=["n","l","bc","beta","stretched","yp"]
 
 class Postprocess():
 
@@ -26,21 +32,39 @@ class Postprocess():
         self: post - an instantiated post object
     """
 
-    def __init__(self, input_file):
+    def __init__(self, *args, **kwargs):
 
         # Initialise MPI
         self.comm = MPI.COMM_WORLD
         self.size = self.comm.Get_size()
         self.rank = self.comm.Get_rank()
 
-        # Read input
-        self.input_reader = InputReader()
-        self.input_file = input_file
-        self.fields, self.mesh = self._process_input()
-        self.mesh.decomp2d(self.size, self.rank)
+        if len(args) == 1:
+            warn("You are using an old-style initialisation, the future is dynamic!", DeprecationWarning)
+            input_file = args[0]
+        
+            self.input_reader=InputReader()
+            self.input_file = input_file
+            self.fields, self.mesh = self._process_input()
 
+        else:
+            self.mesh = Mesh(*args, **kwargs)
+            self.fields = {}
+
+        self.mesh.decomp2d(self.size, self.rank)
         self.prow, self.pcol = self.mesh.compute_decomposition(self.comm_rank, self.comm_size)
 
+    def add_field(self, name, filepath, **kwargs):
+
+        description = ""
+        direction = -1   # Assume field is a scalar
+        dtype = "double" # Xcompact3d uses double by default
+        
+        self.fields[name] = Field(name=name, file_root=filepath,
+                                  description=description,
+                                  direction=direction,
+                                  dtype=dtype)
+        
     def _process_input(self):
         return self.input_reader.read(self.input_file)
 

@@ -5,16 +5,16 @@
   DESCRIPTION: Compute the q-criterion using Py4Incompact3D and plot it at a plane.
 """
 
+import sys
+sys.path.insert(0,'../../..')
 import matplotlib.pyplot as plt
 
 from Py4Incompact3D.postprocess.postprocess import Postprocess
-from Py4Incompact3D.tools.vort import calc_gradu
-from Py4Incompact3D.tools.vort import calc_vort
+from Py4Incompact3D.tools.gradu import calc_gradu
 from Py4Incompact3D.tools.qcrit import calc_qcrit
 
-T=35 # End time
+T=59 # End time
 T+=1 # i.e. run up to t=End time
-
 def main():
 
 	# Load data
@@ -29,8 +29,8 @@ def main():
 		# Compute Q-criterion
 		print("Computing grad(u)")
 		calc_gradu(postprocess)
-		print("Computing vorticity")
-		calc_vort(postprocess)
+		# print("Computing vorticity")
+		# calc_vort(postprocess)
 		print("Computing Q")
 		calc_qcrit(postprocess)
 		
@@ -38,12 +38,12 @@ def main():
 		print("Writing data")
 		vel_list = ["ux", "uy", "uz"]
 		directions = ["x", "y", "z"]
-		for i in range(3):
-			for j in range(3):
-				# name = "d" + vel_list[i] + "d" + directions[j]
-				# postprocess.write(vars=[name])
-				name = "vort" + directions[i] + directions[j]
-				postprocess.write(vars=[name])
+		# for i in range(3):
+		# 	for j in range(3):
+		# 		# name = "d" + vel_list[i] + "d" + directions[j]
+		# 		# postprocess.write(vars=[name])
+		# 		name = "vort" + directions[i] + directions[j]
+		# 		postprocess.write(vars=[name])
 		postprocess.write(vars=["Q"])
 
 		# Cleanup (save memory)

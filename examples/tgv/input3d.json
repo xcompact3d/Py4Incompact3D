@@ -7,14 +7,14 @@
     "name": "mesh_example",
     "description": "Mesh example",
     "properties": {
-      "Nx": 1441,
-      "Ny": 225,
-      "Nz": 209,
-      "Lx": 18.0,
-      "Ly": 2.0,
-      "Lz": 2.0,
+      "Nx": 129,
+      "Ny": 129,
+      "Nz": 129,
+      "Lx": 3.141592653589793,
+      "Ly": 3.141592653589793,
+      "Lz": 3.141592653589793,
       "BCx": 1,
-      "BCy": 2,
+      "BCy": 1,
       "BCz": 1
     }
   },
@@ -23,25 +23,25 @@
 		"name": "ux",
 		"description": "Instantaneous x velocity",
 		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/lock-exchange/non-boussinesq-r07/ux",
+			"filename": "/home/paul/DATA/Incompact3d/tgv_comp/x3d-129-2ndorder/ux",
 			"direction": [0]
 		}
 	},
 	"uy": {
 		"type": "data",
 		"name": "uy",
-		"description": "Instantaneous y velocity",
+		"description": "Instantaneous x velocity",
 		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/lock-exchange/non-boussinesq-r07/uy",
+			"filename": "/home/paul/DATA/Incompact3d/tgv_comp/x3d-129-2ndorder/uy",
 			"direction": [1]
 		}
 	},
 	"uz": {
 		"type": "data",
 		"name": "uz",
-		"description": "Instantaneous z velocity",
+		"description": "Instantaneous x velocity",
 		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/lock-exchange/non-boussinesq-r07/uz",
+			"filename": "/home/paul/DATA/Incompact3d/tgv_comp/x3d-129-2ndorder/uz",
 			"direction": [2]
 		}
 	}

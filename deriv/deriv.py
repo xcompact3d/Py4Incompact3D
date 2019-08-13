@@ -391,6 +391,9 @@ def deriv(postproc, phi, axis, time):
     rhs = compute_rhs(postproc, phi, axis, time, bc)
     rhs = compute_deriv(rhs, bc, not bool(axis in postproc.fields[phi].direction))
 
+    if (axis == 1) and postproc.mesh.stretched:
+        rhs[:][:] *= postproc.mesh.ppy # XXX derivative is stored in last axis
+
     # Transpose back to normal orientation and return
     postproc.fields[phi].data[time] = np.swapaxes(postproc.fields[phi].data[time], 2, axis)
     return np.swapaxes(rhs, 2, axis)

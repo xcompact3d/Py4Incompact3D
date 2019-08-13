@@ -110,7 +110,7 @@ def get_vort_tensor(postprocess, time=-1):
                    [0, 0, 0]]
         for i in range(3):
             for j in range(3):
-                vort[t][i][j] = 0.5 * (gradu[t][i][j] - gradu[t][i][j])
+                vort[t][i][j] = 0.5 * (gradu[t][i][j] - gradu[t][j][i])
 
     return vort
 
