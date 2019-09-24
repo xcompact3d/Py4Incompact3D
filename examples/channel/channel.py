@@ -20,12 +20,22 @@ from Py4Incompact3D.postprocess.postprocess import Postprocess
 from Py4Incompact3D.deriv.deriv import deriv
 from Py4Incompact3D.tools.misc import avg_over_axis
 
-#INPUT_FILE="input.json"
-INPUT_FILE="input-2ndorder.json"
+INPUT_FILES={"CS6":"input.json",
+             # "FD2":"input-2ndorder.json",
+             # "FD2-2x":"input-2ndorder-2x.json"
+}
 RE=4200.0 # Bulk Reynolds number
-NTIME=150000 #400000
+NTIME={"CS6":200000,
+       "FD2":200000,
+       "FD2-2x":400000}
+T={"CS6":"0300000",
+   "FD2":"0300000",
+   "FD2-2x":"0600000"}
 HDR="=" * 72
 LINE="-" * 72
+LINES={"CS6":"-",
+       "FD2":"-.",
+       "FD2-2x":"--"}
 
 # Location of reference data
 REFLEE="/home/paul/DATA/benchmarking/channel-flow/data_lee_retau180.txt"
@@ -38,117 +48,130 @@ REFVREMW="/home/paul/DATA/benchmarking/channel-flow/data_vreman_w_retau180.txt"
 FIRST=0       # Where does the IBM start (N.B. counts from zero)
 LAST=FIRST+129 # Where does the channel end?
 
+def load_dataset(input_file, t):
+
+    postprocess = Postprocess(input_file)
+    mesh = postprocess.mesh
+    yp = mesh.get_grid()[1]
+
+    postprocess.load(time=[t])
+
+    return postprocess.fields["umean"].data[t], \
+        postprocess.fields["vmean"].data[t], \
+        postprocess.fields["wmean"].data[t], \
+        postprocess.fields["uumean"].data[t], \
+        postprocess.fields["vvmean"].data[t], \
+        postprocess.fields["wwmean"].data[t], \
+        mesh
+
+def calc_mean(phi, ntime):
+    return phi / float(ntime)
+
+def calc_uprime(umean, uumean):
+    return (uumean - umean**2)**0.5
+
 def main ():
 
     print(HDR)
     print("Post-processing channel flow.")
     print(LINE)
-    
+
     # Load data
-    postprocess = Postprocess(INPUT_FILE)
-    mesh = postprocess.mesh
-    yp = mesh.get_grid()[1]
+    umean = {}; vmean = {}; wmean = {}
+    uprime = {}; vprime = {}; wprime = {}
+    yp={}
+    for input_file in INPUT_FILES.keys():
+        t = T[input_file]
+        u, v, w, uu, vv, ww, mesh = load_dataset(INPUT_FILES[input_file], t)
+        
+        # Convert to time mean[input_file]
+        u = calc_mean(u, NTIME[input_file])
+        v = calc_mean(v, NTIME[input_file])
+        w = calc_mean(w, NTIME[input_file])
+        uu = calc_mean(uu, NTIME[input_file])
+        vv = calc_mean(vv, NTIME[input_file])
+        ww = calc_mean(ww, NTIME[input_file])
 
-    # t = "0170000" # This is the timestamp of the latest statistic output
-    t = "0600000" # This is the timestamp of the latest statistic output
-    # t = "_full" # This is the "timestamp" of the full statistics
-    postprocess.load(time=[t])
+        # Average in x and z
+        u = avg_over_axis(mesh, avg_over_axis(mesh, u, 2), 0)
+        v = avg_over_axis(mesh, avg_over_axis(mesh, v, 2), 0)
+        w = avg_over_axis(mesh, avg_over_axis(mesh, w, 2), 0)
 
-    # Convert to time mean
-    umean = postprocess.fields["umean"].data[t] / float(NTIME)
-    vmean = postprocess.fields["vmean"].data[t] / float(NTIME)
-    wmean = postprocess.fields["wmean"].data[t] / float(NTIME)
+        uu = avg_over_axis(mesh, avg_over_axis(mesh, uu, 2), 0)
+        vv = avg_over_axis(mesh, avg_over_axis(mesh, vv, 2), 0)
+        ww = avg_over_axis(mesh, avg_over_axis(mesh, ww, 2), 0)
 
-    uumean = postprocess.fields["uumean"].data[t] / float(NTIME)
-    vvmean = postprocess.fields["vvmean"].data[t] / float(NTIME)
-    wwmean = postprocess.fields["wwmean"].data[t] / float(NTIME)
+        # Extract non-IBM subets
+        u = u[FIRST:LAST]
+        v = v[FIRST:LAST]
+        w = w[FIRST:LAST]
 
-    # Get dUdy
-    dUdy = deriv(postprocess, "umean", 1, t)
+        uu = uu[FIRST:LAST]
+        vv = vv[FIRST:LAST]
+        ww = ww[FIRST:LAST]
 
-    # Average in x and z
-    umean = avg_over_axis(mesh, avg_over_axis(mesh, umean, 2), 0)
-    vmean = avg_over_axis(mesh, avg_over_axis(mesh, vmean, 2), 0)
-    wmean = avg_over_axis(mesh, avg_over_axis(mesh, wmean, 2), 0)
+        yp[input_file] = mesh.yp[FIRST:LAST]
+        yp[input_file] -= yp[input_file][0]
 
-    uumean = avg_over_axis(mesh, avg_over_axis(mesh, uumean, 2), 0)
-    vvmean = avg_over_axis(mesh, avg_over_axis(mesh, vvmean, 2), 0)
-    wwmean = avg_over_axis(mesh, avg_over_axis(mesh, wwmean, 2), 0)
+        # Solutions are symmetric
+        u = apply_symmetry(u)
+        v = apply_symmetry(v)
+        w = apply_symmetry(w)
 
-    # dUdy = avg_over_axis(mesh, avg_over_axis(mesh, dUdy, 2), 0)
+        uu = apply_symmetry(uu)
+        vv = apply_symmetry(vv)
+        ww = apply_symmetry(ww)
 
-    # Extract non-IBM subets
-    umean = umean[FIRST:LAST]
-    vmean = vmean[FIRST:LAST]
-    wmean = wmean[FIRST:LAST]
+        yp[input_file] = yp[input_file][:len(u)]
 
-    uumean = uumean[FIRST:LAST]
-    vvmean = vvmean[FIRST:LAST]
-    wwmean = wwmean[FIRST:LAST]
+        # Compute friction velocity
+        # dUdy = (abs(dUdy[0]) + abs(dUdy[-1])) / 2
+        dUdy = (u[1] - u[0]) / (yp[input_file][1] - yp[input_file][0])
+        tauw = dUdy / RE
+        utau = math.sqrt(tauw)
+        Retau = RE * utau
 
-    # dUdy = dUdy[FIRST:LAST]
-    yp = mesh.yp[FIRST:LAST]
-    yp -= yp[0]
+        msg = " Achieved u_tau = " + str(utau) + "; Re_tau = " + str(Retau)
+        print(msg)
 
-    # Solutions are symmetric
-    umean = apply_symmetry(umean)
-    vmean = apply_symmetry(vmean)
-    wmean = apply_symmetry(wmean)
-
-    uumean = apply_symmetry(uumean)
-    vvmean = apply_symmetry(vvmean)
-    wwmean = apply_symmetry(wwmean)
-
-    print(umean[-1])
-
-    yp = yp[:len(umean)]
-
-    # Compute friction velocity
-    # dUdy = (abs(dUdy[0]) + abs(dUdy[-1])) / 2
-    dUdy = (umean[1] - umean[0]) / (yp[1] - yp[0])
-    tauw = dUdy / RE
-    utau = math.sqrt(tauw)
-    yp1 = utau * yp[1] / RE
-    Retau = RE * utau
-
-    msg = " Achieved u_tau = " + str(utau) + "; Re_tau = " + str(Retau)
-    print(msg)
-
-    # Re-scale to wall units
-    yp *= utau * RE
-    msg = "y+ = " + str(yp[1])
-    print(msg)
+        # Re-scale to wall units
+        yp[input_file] *= utau * RE
+        msg = "y+ = " + str(yp[input_file][1])
+        print(msg)
     
-    umean /= utau
-    vmean /= utau
-    wmean /= utau
+        u /= utau
+        v /= utau
+        w /= utau
 
-    uumean /= utau**2
-    vvmean /= utau**2
-    wwmean /= utau**2
+        uu /= utau**2
+        vv /= utau**2
+        ww /= utau**2
 
-    # Compute u'
-    uprime = uumean - umean**2
-    vprime = vvmean - vmean**2
-    wprime = wwmean - wmean**2
-    for i in range(len(uprime)):
-        uprime[i] = math.sqrt(uprime[i])
-        vprime[i] = math.sqrt(vprime[i])
-        wprime[i] = math.sqrt(wprime[i])
+        umean[input_file] = u
+        vmean[input_file] = v
+        wmean[input_file] = w
 
-    # # Limit to yp <= Re_tau
-    # umean = limit_to_retau(umean, yp, Retau)
-    # uprime = limit_to_retau(uprime, yp, Retau)
-    # vprime = limit_to_retau(vprime, yp, Retau)
-    # wprime = limit_to_retau(wprime, yp, Retau)
-    # yp = limit_to_retau(yp, yp, Retau)
+        # Compute u'
+        uprime[input_file] = calc_uprime(u, uu)
+        vprime[input_file] = calc_uprime(v, vv)
+        wprime[input_file] = calc_uprime(w, ww)
 
-    # Plot
+        # # Limit to yp <= Re_tau
+        # umean[input_file] = limit_to_retau(umean[input_file], yp, Retau)
+        # uprime = limit_to_retau(uprime, yp, Retau)
+        # vprime = limit_to_retau(vprime, yp, Retau)
+        # wprime = limit_to_retau(wprime, yp, Retau)
+        # yp = limit_to_retau(yp, yp, Retau)
+
+    ## Plot
     print("Plotting...")
 
+    # Umean
     plt.figure(figsize=(5.0, 3.5))
-    plt.plot(yp, umean, label="X3D",
-             color="red")
+    for input_file in INPUT_FILES.keys():
+        plt.plot(yp[input_file], umean[input_file], label=input_file,
+                 color="red",
+                 ls=LINES[input_file])
 
     yplee, ulee = read_lee(REFLEE)
     plt.plot(yplee, ulee, label="LEE",
@@ -173,13 +196,17 @@ def main ():
     plt.savefig("umean" + t + ".eps", bbox_inches="tight")
     plt.close()
 
+    # Uprime
     plt.figure(figsize=(5.0, 3.5))
-    plt.plot(yp, uprime, label="u'",
-             color="black")
-    plt.plot(yp, vprime, label="v'",
-             color="blue")
-    plt.plot(yp, wprime, label="w'",
-             color="red")
+    plt.plot(yp[input_file], uprime[input_file], label="u'",
+             color="black",
+             ls=LINES[input_file])
+    plt.plot(yp[input_file], vprime[input_file], label="v'",
+             color="blue",
+             ls=LINES[input_file])
+    plt.plot(yp[input_file], wprime[input_file], label="w'",
+             color="red",
+             ls=LINES[input_file])
 
     yplee, uprime_lee, vprime_lee, wprime_lee = read_lee_prime(REFLEEPRIME)
     plt.plot(yplee, uprime_lee,
@@ -210,23 +237,23 @@ def main ():
 
     plt.xlabel(r"$y_+$")
     plt.ylabel(r"$\langle u'_+ \rangle$")
-    plt.xlim((yp[1], 180))
+    plt.xlim((yp[input_file][1], 180))
     plt.legend()
     plt.savefig("velprime" + t + ".eps", bbox_inches="tight")
     plt.close()
 
-    # Save to file
-    outfile = "channel.csv"
-    msg = "Writing to file: " + outfile
-    print(msg)
+    # # Save to file
+    # outfile = "channel.csv"
+    # msg = "Writing to file: " + outfile
+    # print(msg)
 
-    with open(outfile, "w") as csvfile:
-        writer = csv.writer(csvfile, delimiter=" ")
-        writer.writerow(["yp", "u+", "v+", "w+", "u'", "v'", "w'"])
-        for j in range(len(yp)):
-            writer.writerow([yp[j],
-                             umean[j], vmean[j], wmean[j],
-                             uprime[j], vprime[j], wprime[j]])
+    # with open(outfile, "w") as csvfile:
+    #     writer = csv.writer(csvfile, delimiter=" ")
+    #     writer.writerow(["yp", "u+", "v+", "w+", "u'", "v'", "w'"])
+    #     for j in range(len(yp)):
+    #         writer.writerow([yp[j],
+    #                          umean[j], vmean[j], wmean[j],
+    #                          uprime[j], vprime[j], wprime[j]])
 
     print(LINE)
 
