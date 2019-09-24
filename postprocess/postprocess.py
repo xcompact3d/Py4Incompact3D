@@ -51,8 +51,8 @@ class Postprocess():
             self.mesh = Mesh(*args, **kwargs)
             self.fields = {}
 
-        self.mesh.decomp2d(self.size, self.rank)
-        self.prow, self.pcol = self.mesh.compute_decomposition(self.comm_rank, self.comm_size)
+        # self.mesh.decomp2d(self.size, self.rank)
+        # self.prow, self.pcol = self.mesh.compute_decomposition(self.comm_rank, self.comm_size)
 
     def add_field(self, name, filepath, **kwargs):
 

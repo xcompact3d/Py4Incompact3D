@@ -26,6 +26,8 @@ class Field():
         if len(args) == 1:
             warn("You are using an old-style initialisation, the future is dynamic!", DeprecationWarning)
 
+            instance_dictionary = args[0]
+            
             self.name = instance_dictionary["name"]
             self.description = instance_dictionary["description"]
 
