@@ -271,13 +271,21 @@ class Mesh():
 
         for i in range(self.Nx):
             x[i] = i * self.dx
+
+        use_yp = True
+
+        if self.yp is None:
+            use_yp = False
+        elif isinstance(self.yp, np.ndarray):
+            if not self.yp.any():
+                use_yp = False
             
-        if (self.yp == None) or (not self.yp.any()):
-            for j in range(self.Ny):
-                y[j] = j * self.dy
-        else:
+        if use_yp:
             for j in range(self.Ny):
                 y[j] = self.yp[j]
+        else:
+            for j in range(self.Ny):
+                y[j] = j * self.dy
                     
         for k in range(self.Nz):
             z[k] = k * self.dz
