@@ -1,0 +1,30 @@
+{
+  "type": "postprocess_input",
+  "name": "",
+  "description": "Example Py4Incompact3D Postprocess Input file",
+  "mesh": {
+    "type": "mesh",
+    "name": "mesh_example",
+    "description": "Mesh example",
+    "properties": {
+      "Nx": 256,
+      "Ny": 501,
+      "Nz": 8,
+      "Lx": 30.7,
+      "Ly": 60.0,
+      "Lz": 1.0,
+      "BCx": 0,
+      "BCy": 1,
+      "BCz": 0
+    }
+  },
+	"rho": {
+		"type": "data",
+		"name": "rho",
+		"description": "Instantaneous density",
+		"properties": {
+			"filename": "/Users/paulbartholomew/Downloads/mixing-layer/constcoeff/rho",
+			"direction": [0]
+		}
+	},
+}
