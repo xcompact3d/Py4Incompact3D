@@ -34,6 +34,14 @@ def main():
     t = "0160000"
     postprocess.load(time=[t])
 
+    print("WARNING: stats calculation updated for x3d hackathon2021")
+    print("         new code version outputs means, not sums.")
+    print("         If using pre-hackathon2021 code edit this script")
+    print("         to set NTIME appropriately (the averaging period).")
+    NTIME = 1
+    msg = "Averaging period: NTIME = " + str(NTIME)
+    print()
+
     umean1 = postprocess.fields["umean1"].data[t] / float(NTIME)
     uumean1 = postprocess.fields["uumean1"].data[t] / float(NTIME)
     umean2 = postprocess.fields["umean2"].data[t] / float(NTIME)
