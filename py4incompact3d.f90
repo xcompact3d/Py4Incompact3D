@@ -18,6 +18,7 @@
 module py4incompact3d
   ! A module to wrap the 2decomp&fft library such that it can be wrapped by f2py.
   
+  use mpi
   use decomp_2d
   
   implicit none
@@ -34,6 +35,12 @@ contains
     integer, intent(in) :: nx, ny, nz
     integer, intent(in) :: p_row, p_col
 
+    integer :: ierr
+
+    ! XXX: Need to initialise the nproc and nrank variables from 2decomp&fft.
+    call MPI_Comm_size(MPI_COMM_WORLD, nproc, ierr)
+    call MPI_Comm_rank(MPI_COMM_WORLD, nrank, ierr)
+    
     call decomp_2d_init(nx, ny, nz, p_row, p_col)
     
   end subroutine init_py4incompact3d
