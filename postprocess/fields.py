@@ -145,7 +145,7 @@ class Field():
                     filename = self.file_root + zeros + str(t)
                     self.data[t] = self._read(filename, mesh.Nx, mesh.Ny, mesh.Nz, self.dtype)
                 except FileNotFoundError:
-                    msg = "Could not read " + filename + ", " + self.file_root + ", " + t
+                    msg = "Could not read " + filename + ", " + self.file_root + ", " + str(t)
                     print(msg)
                     zeros += "0"
                 else:
