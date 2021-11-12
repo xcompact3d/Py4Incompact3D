@@ -2,7 +2,7 @@
 .. module:: lockexch
     :synopsis: Tools for post-processing lock-exchange problems
 
-.. modulauthor:: Paul Bartholomew <ptb08@ic.ac.uk>
+.. moduleauthor:: Paul Bartholomew <ptb08@ic.ac.uk>
 """
 
 import numpy as np
