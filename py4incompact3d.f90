@@ -43,5 +43,26 @@ contains
     call decomp_2d_init(nx, ny, nz, p_row, p_col)
     
   end subroutine init_py4incompact3d
+
+  subroutine transpose(arr_in, op, arr_tp)
+    !
+
+    real(kind=8), dimension(:,:,:), intent(in) :: arr_in
+    character(len=*), intent(in) :: op
+    real(kind=8), dimension(:,:,:), intent(out) :: arr_tp
+
+    if (op == "xy") then
+       call transpose_x_to_y(arr_in, arr_tp)
+    else if (op == "yz") then
+       call transpose_y_to_z(arr_in, arr_tp)
+    else if (op == "zy") then
+       call transpose_z_to_y(arr_in, arr_tp)
+    else if (op == "yx") then
+       call transpose_y_to_x(arr_in, arr_tp)
+    else
+       print *, "ERROR: Only xy, yz, zy and yx transposes are supported in 2decomp&fft!"
+    end if
+       
+  end subroutine transpose
   
 end module py4incompact3d

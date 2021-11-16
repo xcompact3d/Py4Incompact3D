@@ -28,7 +28,7 @@ $(OBJ_DIR)/%.o: %.f90
 	$(FC) $(FFLAGS) -J$(OBJ_DIR) -c $^ -o $@
 
 $(OBJ_DIR)/%.o: $(D2DIR)/%.f90
-	$(FC) $(FFLAGS) -J$(OBJ_DIR) -c $^ -o $@
+	$(FC) $(FFLAGS) -J$(OBJ_DIR) -c $^ -o $@ -I$(D2DIR)
 
 $(OBJ_DIR):
 	mkdir $(OBJ_DIR)
@@ -46,3 +46,4 @@ doc:
 .PHONY: clean
 clean:
 	rm -f *.mod *.o *.so
+	rm $(OBJ)
