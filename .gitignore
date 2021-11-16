@@ -3,3 +3,5 @@ doc/build/doctrees
 doc/build/latex
 
 obj
+
+*.so
