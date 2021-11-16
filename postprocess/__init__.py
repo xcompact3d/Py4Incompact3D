@@ -1,5 +1,4 @@
 # Copyright 2018 G. Deskos
-# Copyright 2021 University of Edinburgh
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 # this file except in compliance with the License. You may obtain a copy of the
@@ -11,23 +10,3 @@
 # specific language governing permissions and limitations under the License.
 
 from .postprocess import Postprocess
-
-# Try to import h5py for use with HDF5 files
-HAVE_HDF5=False
-try:
-    import h5py
-except ImportError:
-    pass
-else:
-    HAVE_HDF5 = True
-
-def report_p4i3d_status():
-
-    line_sep = "=" * 72
-
-    print(line_sep)
-    print("Py4Incompact3D init status:")
-    print(f"- HDF5 enabled: {HAVE_HDF5}")
-    print(line_sep)
-
-report_p4i3d_status()
