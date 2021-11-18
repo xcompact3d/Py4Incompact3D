@@ -19,17 +19,17 @@ def main():
     # t, ek, dek, ep, dep = read_budget("/home/paul/DATA/Incompact3d/lock-exchange/non-boussinesq-r07/out/budget")
     t, ek, dek, ep, dep = read_budget("/home/paul/DATA/Incompact3d/lock-exchange/boussinesq-uset02/out/budget")
 
-    # ## Subtract background potential energy
-    # L = 18.0
-    # H = 1.0
-    # D = 2.0
-    # rho0 = 0.998
-    # Fr2 = 1 - rho0
-    # Fr = Fr2**0.5
+    ## Subtract background potential energy
+    L = 18.0
+    H = 1.0               # Channel half-height
+    D = 2.0
+    rho0 = 0.998
+    Fr2 = 1 - rho0
+    Fr = Fr2**0.5
+    #print min(ep), max(ep)
+    for i in range(len(ep)):
+        ep[i] -= rho0 * L * (2 * H)**2 * D / (Fr**2) / 2
     # print min(ep), max(ep)
-    # for i in range(len(ep)):
-    #     ep[i] -= rho0 * L * (2 * H)**2 * D / (Fr**2) / 2
-    # # print min(ep), max(ep)
 
     ## Integrate dissipation rates
     et = integrate(dek, t)

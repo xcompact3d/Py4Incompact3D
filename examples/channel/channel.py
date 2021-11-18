@@ -76,6 +76,13 @@ def main ():
     print("Post-processing channel flow.")
     print(LINE)
 
+    print("WARNING: stats calculation updated for x3d hackathon2021")
+    print("         new code version outputs means, not sums.")
+    print("         If using pre-hackathon2021 code edit this script")
+    print("         to set NTIME appropriately (the averaging period).")
+    for key in NTIME.keys():
+        NTIME[key] = 1
+
     # Load data
     umean = {}; vmean = {}; wmean = {}
     uprime = {}; vprime = {}; wprime = {}
