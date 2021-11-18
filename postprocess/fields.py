@@ -100,8 +100,8 @@ class Field():
             fldat = fldat.flatten("F")
             assert(len(fldat) == N)
 
-        return np.reshape(fldat, (nx, ny, nz), "F")
-        
+        return np.reshape(fldat, (nx, ny, nz), "C")
+    
     def _to_fortran(self, time=-1):
         """ Converts data fields from internal (C) to Fortran ordering.
         
