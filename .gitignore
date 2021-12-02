@@ -5,3 +5,5 @@ doc/build/latex
 obj
 
 *.so
+
+*.pdf

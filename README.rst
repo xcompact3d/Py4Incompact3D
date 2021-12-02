@@ -16,7 +16,11 @@ Installation
 
 * Clone the git repository to a location on your :code:`${PYTHONPATH}`
 * Test module can be imported by python interpreter: :code:`import Py4Incompact3D`
-
+* [Optional] Install :code:`h5py` using :code:`pip3 install h5py` to work with HDF5 files generated
+  by Xcompact3d - note this is only intended as a temporary solution until a proper integration with
+  ADIOS2 is implemented.
+  Upon import :code:`Py4Incompact3D` will report the status of HDF5 functionality.
+  
 Documentation
 -------------
 
