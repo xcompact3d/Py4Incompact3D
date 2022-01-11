@@ -43,7 +43,7 @@ def avg_over_axis(mesh, x, axis):
     :param x: The input array to compute average of.
     :param axis: The axis to average over.
 
-    :type mesh: Py4Incompact3D.postprocess.mesh.Mesh
+    :type mesh: py4incompact3d.postprocess.mesh.Mesh
     :type x: numpy.ndarray
     :type axis: int
 
@@ -66,7 +66,7 @@ def int_over_axis(mesh, x, axis):
     :param x: The input array to integrate.
     :param axis: The axis to integrate over.
 
-    :type mesh: Py4Incompact3D.postprocess.mesh.Mesh
+    :type mesh: py4incompact3d.postprocess.mesh.Mesh
     :type x: numpy.ndarray
     :type axis: int
 

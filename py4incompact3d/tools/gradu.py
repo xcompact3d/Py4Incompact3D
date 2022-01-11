@@ -5,8 +5,8 @@
 .. moduleauthor:: Paul Bartholomew <ptb08@ic.ac.uk>
 """
 
-from Py4Incompact3D.deriv.deriv import deriv
-from Py4Incompact3D.postprocess.fields import Field
+from py4incompact3d.deriv.deriv import deriv
+from py4incompact3d.postprocess.fields import Field
 
 def get_gradu_name(i, j):
     """ Determine the name for a component of the velocity gradient tensor.
@@ -32,7 +32,7 @@ def calc_gradu(postprocess, time=-1):
     :param postprocess: The postprocessing object.
     :param time: The time to compute vorticity at, -1 means all times.
 
-    :type postprocess: Py4Incompact3D.postprocess.postprocess.Postprocess
+    :type postprocess: py4incompact3d.postprocess.postprocess.Postprocess
     :type time: int or list of int
     """
 
@@ -77,7 +77,7 @@ def get_gradu_tensor(postprocess, time=-1):
     :param postprocess: The post processing object
     :param time: The time(s) to get the gradient tensor for.
 
-    :type postprocess: Py4Incompact3D.postprocess.postprocess.Postprocess
+    :type postprocess: py4incompact3d.postprocess.postprocess.Postprocess
     :type time: int or list of int
 
     :returns: :math`\boldsymbol{\nabla}\boldsymbol{u}` a time-keyed dictionary of the gradient tensor.

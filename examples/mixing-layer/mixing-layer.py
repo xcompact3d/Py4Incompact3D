@@ -17,8 +17,8 @@ plt.rc("axes", axisbelow=True)
 
 import matplotlib.pyplot as plt
 
-from Py4Incompact3D.postprocess.postprocess import Postprocess
-from Py4Incompact3D.tools.misc import avg_over_axis
+from py4incompact3d.postprocess.postprocess import Postprocess
+from py4incompact3d.tools.misc import avg_over_axis
 
 T=[182]
 RHO1=0.5

@@ -10,7 +10,7 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-import Py4Incompact3D
+import py4incompact3d
 
 from warnings import warn
 
@@ -146,7 +146,7 @@ class Field():
         :param mesh: The mesh the data is stored on.
         :param time: Time(s) to load data, default value -1 means load all times.
 
-        :type mesh: Py4Incompact3D.postprocess.mesh.Mesh
+        :type mesh: py4incompact3d.postprocess.mesh.Mesh
         :type time: int or list of int
         """
         read_hdf5 = False
@@ -161,7 +161,7 @@ class Field():
         else:
             raise ValueError
 
-        if (Py4Incompact3D.HAVE_HDF5):
+        if (py4incompact3d.HAVE_HDF5):
             import h5py # XXX: This doesn't seem right...
             if h5py.is_hdf5(self.file_root):
                 read_hdf5 = True

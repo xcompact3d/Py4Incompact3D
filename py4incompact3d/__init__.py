@@ -13,6 +13,8 @@
 FILE: __init__.py
 """
 
+import decomp2d
+
 from .postprocess import *
 from .tools import *
 from .deriv import *

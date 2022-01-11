@@ -16,9 +16,9 @@ plt.rc("text", usetex=True)
 plt.rc("font", family="serif")
 plt.rc("font", size=11)
 
-from Py4Incompact3D.postprocess.postprocess import Postprocess
-from Py4Incompact3D.deriv.deriv import deriv
-from Py4Incompact3D.tools.misc import avg_over_axis
+from py4incompact3d.postprocess.postprocess import Postprocess
+from py4incompact3d.deriv.deriv import deriv
+from py4incompact3d.tools.misc import avg_over_axis
 
 INPUT_FILES={"CS6":"input.json",
              # "FD2":"input-2ndorder.json",

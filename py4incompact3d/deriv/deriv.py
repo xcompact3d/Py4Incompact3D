@@ -168,7 +168,7 @@ def compute_rhs_0(mesh, field, axis):
     :param field: The field for the variable who's derivative we want.
     :param axis: A number indicating direction in which to take derivative: 0=x; 1=y; 2=z.
 
-    :type mesh: Py4Incompact3D.postprocess.mesh.Mesh
+    :type mesh: py4incompact3d.postprocess.mesh.Mesh
     :type axis: int
 
     :returns: rhs -- the right-hand side vector.
@@ -214,7 +214,7 @@ def compute_rhs_1(mesh, field, axis, field_direction):
     :param axis: A number indicating direction in which to take derivative: 0=x; 1=y; 2=z.
     :param field_direction: Indicates the direction of the field: -1=scalar; 0=x; 1=y; 2=z.
 
-    :type mesh: Py4Incompact3D.postprocess.mesh.Mesh
+    :type mesh: py4incompact3d.postprocess.mesh.Mesh
     :type field: np.ndarray
     :type axis: int
     :type field_direction: list of int
@@ -284,7 +284,7 @@ def compute_rhs_2(mesh, field, axis):
     :param field: The field for the variable who's derivative we want.
     :param axis: A number indicating direction in which to take derivative: 0=x; 1=y; 2=z.
 
-    :type mesh: Py4Incompact3D.postprocess.mesh.Mesh
+    :type mesh: py4incompact3d.postprocess.mesh.Mesh
     :type axis: int
 
     :returns: rhs -- the right-hand side vector.
@@ -336,7 +336,7 @@ def compute_rhs(postproc, field, axis, time, bc):
     :param time: The time to compute rhs for.
     :param bc: The boundary condition: 0=periodic; 1=free-slip; 2=Dirichlet.
 
-    :type mesh: Py4Incompact3D.postprocess.postproc.Postproc
+    :type mesh: py4incompact3d.postprocess.postproc.Postproc
     :type field: str
     :type axis: int
     :type time: int
@@ -364,7 +364,7 @@ def deriv(postproc, phi, axis, time):
     :param axis: A number indicating direction in which to take derivative: 0=x; 1=y; 2=z.
     :param time: The time stamp to compute derivatives for.
 
-    :type postproc: Py4Incompact3D.postprocess.postprocess.Postprocess
+    :type postproc: py4incompact3d.postprocess.postprocess.Postprocess
     :type phi: str
     :type axis: int
     :type time: int

@@ -2,7 +2,7 @@
 This file is to test the new json free initialisation
 """
 
-from Py4Incompact3D.postprocess.postprocess import Postprocess
+from py4incompact3d.postprocess.postprocess import Postprocess
 
 NX=1441
 NY=225

@@ -7,8 +7,8 @@
 
 import numpy as np
 
-from Py4Incompact3D.tools.gradu import calc_gradu, get_gradu_tensor
-from Py4Incompact3D.postprocess.fields import Field
+from py4incompact3d.tools.gradu import calc_gradu, get_gradu_tensor
+from py4incompact3d.postprocess.fields import Field
 
 def calc_qcrit(postprocess, time=-1):
     """ Computes the q-criterion of the velocit field, assumes ux uy uz vortx vorty vortz have all
@@ -17,7 +17,7 @@ def calc_qcrit(postprocess, time=-1):
     :param postprocess: The postprocessing object.
     :param time: The time to compute vorticity at, -1 means all times.
 
-    :type postprocess: Py4Incompact3D.postprocess.postprocess.Postprocess
+    :type postprocess: py4incompact3d.postprocess.postprocess.Postprocess
     :type time: int or list of int
     """
 

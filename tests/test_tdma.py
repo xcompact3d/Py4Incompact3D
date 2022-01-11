@@ -8,7 +8,7 @@
 
 import unittest
 import numpy as np
-from Py4Incompact3D.deriv.deriv import tdma
+from py4incompact3d.deriv.deriv import tdma
 
 class test_tdma(unittest.TestCase):
     
