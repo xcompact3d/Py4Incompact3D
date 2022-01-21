@@ -17,6 +17,8 @@ import numpy as np
 from scipy.interpolate import interp1d
 from scipy.interpolate import griddata
 
+import decomp2d
+
 class Mesh():
     """
     Mesh is a model object representing
@@ -50,6 +52,11 @@ class Mesh():
             raise RuntimeError("Need to set Lx, Ly and Lz")
         elif (self.BCx == -1) or (self.BCy == -1) or (self.BCz == -1):
             raise RuntimeError("Need to set boundary conditions!")
+
+        # Initialise 2decomp&fft
+        prow = 0
+        pcol = 0
+        decomp2d.decomp4py.init_decomp4py(self.Nx, self.Ny, self.Nz, 0, 0)
 
     def _init_new(self, *args, **kwargs):
 
