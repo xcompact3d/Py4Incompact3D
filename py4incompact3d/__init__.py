@@ -13,6 +13,8 @@
 FILE: __init__.py
 """
 
+from mpi4py import MPI
+
 import decomp2d
 
 from .postprocess import *
@@ -27,6 +29,11 @@ except ImportError:
     pass
 else:
     HAVE_HDF5 = True
+
+# Set MPI variables
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
     
 #################################################################################
 
@@ -37,7 +44,10 @@ def report_p4i3d_status():
 
     print(line_sep)
     print("Py4Incompact3D init status:")
+    print("- MPI:")
+    print(f"+- running on {size} ranks")
     print(f"- HDF5 enabled: {HAVE_HDF5}")
     print(line_sep)
 
-report_p4i3d_status()
+if (rank == 0):
+    report_p4i3d_status()
