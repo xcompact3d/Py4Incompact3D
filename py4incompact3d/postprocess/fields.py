@@ -12,9 +12,13 @@
 
 import py4incompact3d
 
+import os
 from warnings import warn
 
 import numpy as np
+from mpi4py import MPI
+
+import decomp2d
 
 class Field():
 
@@ -61,7 +65,7 @@ class Field():
                         self.dtype = np.float32
                     else:
                         self.dtype = np.float64
-
+                        
         self.data = {}
 
     def _read(self, filename, nx, ny, nz, dtype=np.float64):
@@ -101,6 +105,42 @@ class Field():
             assert(len(fldat) == N)
 
         return np.reshape(fldat, (nx, ny, nz), "C")
+
+    def _read_mpiio(self, filename, nx, ny, nz, pencil="x", dtype=np.float64):
+        """ Reads a datafile generate by Incompact3D into a (3D) numpy array in parallel.
+        
+        :param filename: The file to read.
+        :param nx: The mesh x resolution.
+        :param ny: The mesh y resolution.
+        :param nz: The mesh z resolution.
+        :param dtype:
+        """
+
+        # amode = MPI.MODE_RDONLY
+        # fh = MPI.File.Open(MPI.COMM_WORLD, filename, amode)
+
+        # sizes = (nx, ny, nz)
+        # subsizes = decomp2d.decomp4py.get_grid_size(pencil)
+        # starts = decomp2d.decomp4py.get_grid_start(pencil)
+
+        # local_size = 1
+        # for i in range(len(subsizes)):
+        #     local_size *= subsizes[i]
+        
+        # MPI.Type_Create_subarray(3, sizes, subsizes, starts, MPI.ORDER_FORTRAN, dt, nt)
+        # MPI.Type_Commit(nt)
+        # fh.set_view(0, dt, nt, 'native', MPI.INFO_NULL)
+        # fh.Read_All(fldat, local_size, dt, MPI.STATUS_IGNORE)
+        
+        # fh.Close()
+
+        subsizes = decomp2d.decomp4py.get_grid_size("x")
+        data_path, data_file = os.path.split(filename)
+        data_arr = np.zeros(subsizes, order="F")
+        print(data_arr.flags.f_contiguous, data_arr.shape)
+        decomp2d.decomp4py.read_field(1, data_arr, data_path, data_file, "foo")
+        print("Done reading")
+        return np.reshape(data_arr, subsizes, "C")
     
     def _to_fortran(self, time=-1):
         """ Converts data fields from internal (C) to Fortran ordering.
@@ -178,7 +218,10 @@ class Field():
                 while (not read_success) and (len(zeros) < 10):
                     try:
                         filename = self.file_root + zeros + str(t)
-                        self.data[t] = self._read(filename, mesh.Nx, mesh.Ny, mesh.Nz, self.dtype)
+                        if (py4incompact3d.size == 1):
+                            self.data[t] = self._read(filename, mesh.Nx, mesh.Ny, mesh.Nz, self.dtype)
+                        else:
+                            self.data[t] = self._read_mpiio(filename, mesh.Nx, mesh.Ny, mesh.Nz, self.dtype)
                     except FileNotFoundError:
                         msg = "Could not read " + filename + ", " + self.file_root + ", " + str(t)
                         print(msg)
@@ -189,6 +232,11 @@ class Field():
                 if not read_success:
                     raise RuntimeError
 
+    def new(self, mesh, pencil=0, time=0):
+
+        self.data[time] = np.zeros((mesh.NxLocal[pencil], mesh.NyLocal[pencil], mesh.NzLocal[pencil]),
+                                   dtype=self.dtype)
+        
     def _get_timestamp(self, t, timestamp_len=3):
         """ Set the timestamp for output according to format: phiXXX where XXX is the time
         left-padded with zeros.
