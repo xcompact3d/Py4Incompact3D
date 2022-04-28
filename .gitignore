@@ -6,6 +6,7 @@ obj
 
 *.so
 
+*.png
 *.pdf
 
 *.egg-info
