@@ -137,9 +137,7 @@ class Field():
         subsizes = decomp2d.decomp4py.get_grid_size("x")
         data_path, data_file = os.path.split(filename)
         data_arr = np.zeros(subsizes, order="F")
-        print(data_arr.flags.f_contiguous, data_arr.shape)
         decomp2d.decomp4py.read_field(1, data_arr, data_path, data_file, "foo")
-        print("Done reading")
         return np.reshape(data_arr, subsizes, "C")
     
     def _to_fortran(self, time=-1):
