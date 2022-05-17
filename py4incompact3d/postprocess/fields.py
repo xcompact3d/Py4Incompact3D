@@ -121,6 +121,9 @@ class Field():
         data_arr = np.zeros(subsizes, order="F")
         decomp2d.decomp4py.read_field(1, data_arr, data_path, data_file, "foo")
         return np.reshape(data_arr, subsizes, "C")
+
+    def _read_adios2(self, t, nx, ny, nz):
+        pass
     
     def _to_fortran(self, time=-1):
         """ Converts data fields from internal (C) to Fortran ordering.
@@ -170,7 +173,8 @@ class Field():
         :type time: int or list of int
         """
         read_hdf5 = False
-
+        read_adios = False
+        
         # Find all files to load
         if time == -1:
             load_times = range(1000) # This corresponds to 4-digit timestamp
@@ -181,14 +185,20 @@ class Field():
         else:
             raise ValueError
 
-        if (py4incompact3d.HAVE_HDF5):
+
+        if (py4incompact3d.HAVE_ADIOS2):
+            read_adios = True
+        elif (py4incompact3d.HAVE_HDF5):
             import h5py # XXX: This doesn't seem right...
             if h5py.is_hdf5(self.file_root):
                 read_hdf5 = True
             else:
                 print(f"{self.file_root} is not an HDF5 file")
 
-        if read_hdf5:
+        if read_adios:
+            for t in load_times:
+                self.data[t] = self._read_adios2(t, mesh.Nx, mesh.Ny, mesh.Nz)
+        elif read_hdf5:
             for t in load_times:
                 self.data[t] = self._read_hdf5(t, mesh.Nx, mesh.Ny, mesh.Nz)
         else:
