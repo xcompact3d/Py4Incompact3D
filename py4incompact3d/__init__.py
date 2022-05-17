@@ -30,6 +30,8 @@ except ImportError:
 else:
     HAVE_HDF5 = True
 
+HAVE_ADIOS2 = bool(decomp2d.decomp4py.have_adios2)
+    
 # Set MPI variables
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -47,6 +49,7 @@ def report_p4i3d_status():
     print("- MPI:")
     print(f"+- running on {size} ranks")
     print(f"- HDF5 enabled: {HAVE_HDF5}")
+    print(f"- ADIOS2 enabled: {HAVE_ADIOS2}")
     print(line_sep)
 
 if (rank == 0):
