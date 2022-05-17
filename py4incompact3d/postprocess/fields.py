@@ -116,24 +116,6 @@ class Field():
         :param dtype:
         """
 
-        # amode = MPI.MODE_RDONLY
-        # fh = MPI.File.Open(MPI.COMM_WORLD, filename, amode)
-
-        # sizes = (nx, ny, nz)
-        # subsizes = decomp2d.decomp4py.get_grid_size(pencil)
-        # starts = decomp2d.decomp4py.get_grid_start(pencil)
-
-        # local_size = 1
-        # for i in range(len(subsizes)):
-        #     local_size *= subsizes[i]
-        
-        # MPI.Type_Create_subarray(3, sizes, subsizes, starts, MPI.ORDER_FORTRAN, dt, nt)
-        # MPI.Type_Commit(nt)
-        # fh.set_view(0, dt, nt, 'native', MPI.INFO_NULL)
-        # fh.Read_All(fldat, local_size, dt, MPI.STATUS_IGNORE)
-        
-        # fh.Close()
-
         subsizes = decomp2d.decomp4py.get_grid_size("x")
         data_path, data_file = os.path.split(filename)
         data_arr = np.zeros(subsizes, order="F")
