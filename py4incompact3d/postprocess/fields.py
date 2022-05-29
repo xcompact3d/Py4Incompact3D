@@ -65,7 +65,11 @@ class Field():
                         self.dtype = np.float32
                     else:
                         self.dtype = np.float64
-                        
+                elif arg == "io_name":
+                    self.io_name = val
+
+        decomp2d.decomp4py.register(self.name, self.io_name)
+                    
         self.data = {}
 
     def _read(self, filename, nx, ny, nz, dtype=np.float64):
@@ -106,7 +110,7 @@ class Field():
 
         return np.reshape(fldat, (nx, ny, nz), "C")
 
-    def _read_mpiio(self, filename, nx, ny, nz, pencil="x", dtype=np.float64):
+    def _read_mpiio(self, filename, nx, ny, nz, pencil="x", dtype=np.float64, io_name="solution-io"):
         """ Reads a datafile generate by Incompact3D into a (3D) numpy array in parallel.
         
         :param filename: The file to read.
@@ -119,11 +123,12 @@ class Field():
         subsizes = decomp2d.decomp4py.get_grid_size("x")
         data_path, data_file = os.path.split(filename)
         data_arr = np.zeros(subsizes, order="F")
-        decomp2d.decomp4py.read_field(1, data_arr, data_path, data_file, "foo")
+        decomp2d.decomp4py.read_field(1, data_arr, data_path, data_file, io_name)
         return np.reshape(data_arr, subsizes, "C")
 
     def _read_adios2(self, t, nx, ny, nz):
-        pass
+
+        return self._read_mpiio(self.file_root, nx, ny, nz)
     
     def _to_fortran(self, time=-1):
         """ Converts data fields from internal (C) to Fortran ordering.
@@ -185,9 +190,20 @@ class Field():
         else:
             raise ValueError
 
+        def suffix(s, sep="."):
+            return s.split(sep)[-1]
+
+        def is_hdf5(filename):
+            sfx = suffix(filename)
+            return sfx == "hdf5"
+        
+        def is_adios2(filename):
+            adios2_suffixes = ["bp4", "bp5"]
+            sfx = suffix(filename)
+            return (sfx in adios2_suffixes) or is_hdf5(filename)
 
         if (py4incompact3d.HAVE_ADIOS2):
-            read_adios = True
+            read_adios = is_adios2(self.file_root)
         elif (py4incompact3d.HAVE_HDF5):
             import h5py # XXX: This doesn't seem right...
             if h5py.is_hdf5(self.file_root):

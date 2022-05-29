@@ -50,11 +50,13 @@ class Postprocess():
         description = ""
         direction = -1   # Assume field is a scalar
         dtype = "double" # Xcompact3d uses double by default
+        io_name = "solution-io"
         
         self.fields[name] = Field(name=name, file_root=filepath,
                                   description=description,
                                   direction=direction,
-                                  dtype=dtype)
+                                  dtype=dtype,
+                                  io_name=io_name)
         
     def _process_input(self):
         return self.input_reader.read(self.input_file)
