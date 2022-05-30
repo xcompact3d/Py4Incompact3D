@@ -39,17 +39,21 @@ def main():
     print("Post-processing TGV.")
     print(LBR)
 
+    io_name = "solution-io"
+
     postprocess = Postprocess(n=[NX, NY, NZ],
                               l=[LX, LY, LZ],
                               bc=[BCX, BCY, BCZ])
 
+    postprocess.init_io(io_name)
+    
     postprocess.add_field("ux", ADIOS2_FILE, direction=0)
     postprocess.add_field("uy", ADIOS2_FILE, direction=1)
     postprocess.add_field("uz", ADIOS2_FILE, direction=2)
 
     postprocess.load(time=1)
 
-    print(postprocess.fields["ux"].data.keys())
+    print(postprocess.fields["ux"].data[1])
 
 if __name__ == "__main__":
     main()

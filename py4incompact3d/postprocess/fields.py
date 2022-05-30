@@ -68,7 +68,7 @@ class Field():
                 elif arg == "io_name":
                     self.io_name = val
 
-        decomp2d.decomp4py.register(self.name, self.io_name)
+        decomp2d.decomp4py.register_variable(self.name, self.io_name)
                     
         self.data = {}
 
@@ -128,7 +128,8 @@ class Field():
 
     def _read_adios2(self, t, nx, ny, nz):
 
-        return self._read_mpiio(self.file_root, nx, ny, nz)
+        filename = os.path.join(self.file_root.split(".")[0], self.name)
+        return self._read_mpiio(filename, nx, ny, nz)
     
     def _to_fortran(self, time=-1):
         """ Converts data fields from internal (C) to Fortran ordering.
@@ -212,8 +213,15 @@ class Field():
                 print(f"{self.file_root} is not an HDF5 file")
 
         if read_adios:
+
+            io_name = "solution-io"
+            filename = self.file_root.split(".")[0]
+            print(filename)
+            decomp2d.decomp4py.open_io(io_name, filename)
             for t in load_times:
                 self.data[t] = self._read_adios2(t, mesh.Nx, mesh.Ny, mesh.Nz)
+            decomp2d.decomp4py.close_io(io_name, filename)
+            
         elif read_hdf5:
             for t in load_times:
                 self.data[t] = self._read_hdf5(t, mesh.Nx, mesh.Ny, mesh.Nz)
