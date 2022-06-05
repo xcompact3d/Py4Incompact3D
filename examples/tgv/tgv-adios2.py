@@ -6,7 +6,10 @@ DESCRIPTION: Tests reading and processing TGV with ADIOS2.
 
 import math
 
+import numpy as np
+
 from py4incompact3d.postprocess.postprocess import Postprocess
+import decomp2d
 
 HDR="=" * 72
 LBR="-" * 72
@@ -23,7 +26,7 @@ BCX=1
 BCY=BCX
 BCZ=BCX
 
-ADIOS2_FILE="/home/paul/src/Xcompact3d/Xcompact3d/examples/Taylor-Green-Vortex/data.bp4"
+ADIOS2_FILE="/home/paul/src/Xcompact3d/Xcompact3d/examples/Taylor-Green-Vortex/data"
 
 def ke(u, v, w):
     """Given a velocity field, computue the kinetic energy."""
@@ -46,14 +49,21 @@ def main():
                               bc=[BCX, BCY, BCZ])
 
     postprocess.init_io(io_name)
-    
+
+    ADIOS2_FILE = "data.sst"
     postprocess.add_field("ux", ADIOS2_FILE, direction=0)
     postprocess.add_field("uy", ADIOS2_FILE, direction=1)
     postprocess.add_field("uz", ADIOS2_FILE, direction=2)
 
-    postprocess.load(time=1)
+    io_name = "solution-io"
 
-    print(postprocess.fields["ux"].data[1])
+    decomp2d.decomp4py.open_io(io_name, "data")
+    decomp2d.decomp4py.start_io("solution-io", "data")
+    for t in range(1, 5+1):
+        postprocess.load(time=t)
+        print(np.amax(postprocess.fields["ux"].data[t]))
+    decomp2d.decomp4py.end_io("solution-io", "data")
+    decomp2d.decomp4py.close_io(io_name, "data")
 
 if __name__ == "__main__":
     main()

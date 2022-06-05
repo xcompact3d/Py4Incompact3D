@@ -199,7 +199,7 @@ class Field():
             return sfx == "hdf5"
         
         def is_adios2(filename):
-            adios2_suffixes = ["bp4", "bp5"]
+            adios2_suffixes = ["bp4", "bp5", "sst"]
             sfx = suffix(filename)
             return (sfx in adios2_suffixes) or is_hdf5(filename)
 
@@ -214,13 +214,9 @@ class Field():
 
         if read_adios:
 
-            io_name = "solution-io"
             filename = self.file_root.split(".")[0]
-            print(filename)
-            decomp2d.decomp4py.open_io(io_name, filename)
             for t in load_times:
                 self.data[t] = self._read_adios2(t, mesh.Nx, mesh.Ny, mesh.Nz)
-            decomp2d.decomp4py.close_io(io_name, filename)
             
         elif read_hdf5:
             for t in load_times:
