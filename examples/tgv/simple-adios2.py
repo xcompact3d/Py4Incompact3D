@@ -18,5 +18,13 @@ with adios2.open("data", "r",
 
     for fstep in fh:
 
+        step = fstep.current_step()
+        print(step)
+
         vars = fstep.available_variables()
-        print(vars)
+        for name, info in vars.items():
+            print(name)
+            print(info)
+
+        pp = fstep.read("pp")
+        print(pp.shape)

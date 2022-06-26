@@ -129,6 +129,7 @@ class Field():
     def _read_adios2(self, t, nx, ny, nz):
 
         filename = os.path.join(self.file_root.split(".")[0], self.name)
+        print(f"Trying to read {filename}/{t}")
         return self._read_mpiio(filename, nx, ny, nz)
     
     def _to_fortran(self, time=-1):
@@ -212,6 +213,8 @@ class Field():
             else:
                 print(f"{self.file_root} is not an HDF5 file")
 
+        print(self.file_root)
+        print(read_adios, read_hdf5)
         if read_adios:
 
             filename = self.file_root.split(".")[0]
