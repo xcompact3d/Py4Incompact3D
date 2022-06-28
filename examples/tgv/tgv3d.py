@@ -6,10 +6,10 @@ DESCRIPTION:
 
 import numpy as np
 
-from Py4Incompact3D.postprocess.postprocess import Postprocess
-from Py4Incompact3D.tools.vort import calc_gradu
-from Py4Incompact3D.tools.vort import calc_vort
-from Py4Incompact3D.tools.qcrit import calc_qcrit
+from py4incompact3d.postprocess.postprocess import Postprocess
+from py4incompact3d.tools.vort import calc_gradu
+from py4incompact3d.tools.vort import calc_vort
+from py4incompact3d.tools.qcrit import calc_qcrit
 
 T=20+1
 

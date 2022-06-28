@@ -17,6 +17,8 @@ import numpy as np
 from scipy.interpolate import interp1d
 from scipy.interpolate import griddata
 
+import decomp2d
+
 class Mesh():
     """
     Mesh is a model object representing
@@ -51,6 +53,8 @@ class Mesh():
         elif (self.BCx == -1) or (self.BCy == -1) or (self.BCz == -1):
             raise RuntimeError("Need to set boundary conditions!")
 
+        self.__init_decomposition()
+        
     def _init_new(self, *args, **kwargs):
 
         for arg, val in kwargs.items():
@@ -116,7 +120,62 @@ class Mesh():
             self.ppy = self.calc_ppy(yeta)
         else:
             self.yp = None
+
+    def __init_decomposition(self):
+
+        # Initialise 2decomp&fft
+        prow = 0
+        pcol = 0
+        decomp2d.decomp4py.init_decomp4py(self.Nx, self.Ny, self.Nz, 0, 0)
+
+        # Create local size arrays (one per pencil)
+        self.NxLocal = [0, 0, 0]
+        self.NyLocal = [0, 0, 0]
+        self.NzLocal = [0, 0, 0]
+
+        # Popoulate local size arrays
+        for ax in ["x", "y", "z"]:
+            self.___populate_local_sizes(ax)
+
+        self.NxStart = [0, 0, 0]
+        self.NyStart = [0, 0, 0]
+        self.NzStart = [0, 0, 0]
+
+        for ax in ["x", "y", "z"]:
+            self.___populate_local_starts(ax)
         
+    def ___populate_local_sizes(self, ax):
+        
+        d = {"x":0, "y":1, "z":2}
+
+        n = decomp2d.decomp4py.get_grid_size(ax)
+        self.NxLocal[d[ax]] = n[0]
+        self.NyLocal[d[ax]] = n[1]
+        self.NzLocal[d[ax]] = n[2]
+        
+    def ___populate_local_starts(self, ax):
+        
+        d = {"x":0, "y":1, "z":2}
+
+        n = decomp2d.decomp4py.get_grid_start(ax)
+        self.NxStart[d[ax]] = n[0] - 1 # Use zero indexing 
+        self.NyStart[d[ax]] = n[1] - 1 # Use zero indexing 
+        self.NzStart[d[ax]] = n[2] - 1 # Use zero indexing 
+
+    def global_index(self, pencil, i, j, k):
+        """ Returns the global index of a point in a given pencil.
+
+        Note - uses C/Python (i.e. row-major) ordering!
+        """
+
+        ig = i + self.NxStart[pencil]
+        jg = j + self.NyStart[pencil]
+        kg = k + self.NzStart[pencil]
+
+        idxg = ig * self.Ny * self.Nz + jg * self.Nz + kg
+
+        return idxg
+
     def get_grid(self):
 
         x = np.zeros(self.Nx)

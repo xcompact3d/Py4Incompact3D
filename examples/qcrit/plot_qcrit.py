@@ -9,9 +9,9 @@ import sys
 sys.path.insert(0,'../../..')
 import matplotlib.pyplot as plt
 
-from Py4Incompact3D.postprocess.postprocess import Postprocess
-from Py4Incompact3D.tools.gradu import calc_gradu
-from Py4Incompact3D.tools.qcrit import calc_qcrit
+from py4incompact3d.postprocess.postprocess import Postprocess
+from py4incompact3d.tools.gradu import calc_gradu
+from py4incompact3d.tools.qcrit import calc_qcrit
 
 T=59 # End time
 T+=1 # i.e. run up to t=End time

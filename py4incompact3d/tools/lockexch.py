@@ -8,7 +8,7 @@
 import numpy as np
 from scipy.signal import argrelextrema
 
-from Py4Incompact3D.tools.misc import int_over_axis, avg_over_axis
+from py4incompact3d.tools.misc import int_over_axis, avg_over_axis
 
 def calc_h(postprocess, field="rho", gamma=0.998, time=-1):
     r""" Calculates the "height" of the gravity-current, assumes name field (default :math:`\rho`)
@@ -29,7 +29,7 @@ def calc_h(postprocess, field="rho", gamma=0.998, time=-1):
                   \gamma < 1`
     :param time: The time(s) to compute h for, -1 means all times.
 
-    :type postprocess: Py4Incompact3D.postprocess.postprocess.Postprocess
+    :type postprocess: py4incompact3d.postprocess.postprocess.Postprocess
     :type field: str
     :type gamma: float
     :type time: int or list of int

@@ -1,38 +1,9 @@
-;;; .dir-locals.el --- 
-;; 
-;; Filename: .dir-locals.el
-;; Description: 
-;; Author: Paul Bartholomew
-;; Maintainer: 
-;; Created: Wed Oct  3 14:03:18 2018 (+0100)
-;; Version: 
-;; Package-Requires: ()
-;; Last-Updated: Thu Oct  4 16:33:50 2018 (+0100)
-;;           By: Paul Bartholomew
-;;     Update #: 3
-;; URL: 
-;; Doc URL: 
-;; Keywords: 
-;; Compatibility: 
-;; 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
-;;; Commentary: 
-;; 
-;; 
-;; 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
-;;; Change Log:
-;; 
-;; 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
-;;; Code:
+;;; Directory Local Variables
+;;; For more information see (info "(emacs) Directory Variables")
 
-((nil . ((indent-tabs-mode . nil)
-				 (python-indent-offset . 4)
-				 (js-indent-level . 2))))
+((javascript-mode . ((js-indent-level . 2)))
+ (python . ((indent-tabs-mode . nil)
+	    (python-indent-offset . 4))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; .dir-locals.el ends here

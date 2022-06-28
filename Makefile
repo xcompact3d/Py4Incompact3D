@@ -6,6 +6,9 @@
 
 all: test
 
+install:
+	pip install .
+
 test:
 	python3 -m unittest discover
 

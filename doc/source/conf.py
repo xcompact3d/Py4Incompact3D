@@ -16,8 +16,8 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
+import os
+import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
 
@@ -39,6 +39,8 @@ extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     # 'sphinx.ext.githubpages'
+    'sphinxfortran.fortran_domain',
+    'sphinxfortran.fortran_autodoc',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -199,3 +201,8 @@ epub_exclude_files = ['search.html']
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
+
+# -- Options for Fortran --------------------------------------------------
+fortran_ext = ['f90']
+fortran_src = [ os.path.abspath('../../'), ]
+fortran_indent = 3

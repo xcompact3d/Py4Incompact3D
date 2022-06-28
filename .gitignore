@@ -1,3 +1,13 @@
 *.pyc
 doc/build/doctrees
 doc/build/latex
+
+obj
+
+*.so
+
+*.png
+*.pdf
+
+*.egg-info
+build

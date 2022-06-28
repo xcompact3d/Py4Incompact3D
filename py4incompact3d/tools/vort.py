@@ -5,9 +5,9 @@
 .. moduleauthor:: Paul Bartholomew <ptb08@ic.ac.uk>
 """
 
-from Py4Incompact3D.tools.gradu import calc_gradu, get_gradu_tensor
-from Py4Incompact3D.deriv.deriv import deriv
-from Py4Incompact3D.postprocess.fields import Field
+from py4incompact3d.tools.gradu import calc_gradu, get_gradu_tensor
+from py4incompact3d.deriv.deriv import deriv
+from py4incompact3d.postprocess.fields import Field
 
 def get_vort_name(i, j):
     """ Get the name for the specified component of the vorticity tensor.
@@ -31,7 +31,7 @@ def calc_vort(postprocess, time=-1):
     :param postprocess: The postprocessing object. 
     :param time: The time to compute vorticity at, -1 means all times.
 
-    :type postprocess: Py4Incompact3D.postprocess.postprocess.Postprocess
+    :type postprocess: py4incompact3d.postprocess.postprocess.Postprocess
     :type time: int or list of int
     """
 
@@ -84,7 +84,7 @@ def get_vort_tensor(postprocess, time=-1):
     :param postprocess: The post processing object.
     :param time: The time(s) to get the vorticity tensor for.
 
-    :type postprocess: Py4Incompact3D.postprocess.postprocess.Postprocess
+    :type postprocess: py4incompact3d.postprocess.postprocess.Postprocess
     :type time: int or list of int
 
     :returns: :math`\boldsymbol{\Omega}` a time-keyed dictionary of the vorticity tensor.

@@ -14,9 +14,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from Py4Incompact3D.postprocess.postprocess import Postprocess
-from Py4Incompact3D.tools.lockexch import calc_h, get_frontidx_birman
-from Py4Incompact3D.tools.misc import moving_avg
+from py4incompact3d.postprocess.postprocess import Postprocess
+from py4incompact3d.tools.lockexch import calc_h, get_frontidx_birman
+from py4incompact3d.tools.misc import moving_avg
 
 ####################################################################################################
 #

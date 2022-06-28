@@ -46,3 +46,8 @@ General postprocessing tools go here
     :members:
 .. automodule:: Py4Incompact3D.tools.lockexch
     :members:
+
+Fortran
+-------
+
+.. f:autosrcfile:: py4incompact3d.f90

@@ -10,11 +10,15 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-import Py4Incompact3D
+import py4incompact3d
 
+import os
 from warnings import warn
 
 import numpy as np
+from mpi4py import MPI
+
+import decomp2d
 
 class Field():
 
@@ -61,7 +65,11 @@ class Field():
                         self.dtype = np.float32
                     else:
                         self.dtype = np.float64
+                elif arg == "io_name":
+                    self.io_name = val
 
+        decomp2d.decomp4py.register_variable(self.name, self.io_name)
+                    
         self.data = {}
 
     def _read(self, filename, nx, ny, nz, dtype=np.float64):
@@ -101,6 +109,28 @@ class Field():
             assert(len(fldat) == N)
 
         return np.reshape(fldat, (nx, ny, nz), "C")
+
+    def _read_mpiio(self, filename, nx, ny, nz, pencil="x", dtype=np.float64, io_name="solution-io"):
+        """ Reads a datafile generate by Incompact3D into a (3D) numpy array in parallel.
+        
+        :param filename: The file to read.
+        :param nx: The mesh x resolution.
+        :param ny: The mesh y resolution.
+        :param nz: The mesh z resolution.
+        :param dtype:
+        """
+
+        subsizes = decomp2d.decomp4py.get_grid_size("x")
+        data_path, data_file = os.path.split(filename)
+        data_arr = np.zeros(subsizes, order="F")
+        decomp2d.decomp4py.read_field(1, data_arr, data_path, data_file, io_name)
+        return np.reshape(data_arr, subsizes, "C")
+
+    def _read_adios2(self, t, nx, ny, nz):
+
+        filename = os.path.join(self.file_root.split(".")[0], self.name)
+        print(f"Trying to read {filename}/{t}")
+        return self._read_mpiio(filename, nx, ny, nz)
     
     def _to_fortran(self, time=-1):
         """ Converts data fields from internal (C) to Fortran ordering.
@@ -146,11 +176,12 @@ class Field():
         :param mesh: The mesh the data is stored on.
         :param time: Time(s) to load data, default value -1 means load all times.
 
-        :type mesh: Py4Incompact3D.postprocess.mesh.Mesh
+        :type mesh: py4incompact3d.postprocess.mesh.Mesh
         :type time: int or list of int
         """
         read_hdf5 = False
-
+        read_adios = False
+        
         # Find all files to load
         if time == -1:
             load_times = range(1000) # This corresponds to 4-digit timestamp
@@ -161,14 +192,36 @@ class Field():
         else:
             raise ValueError
 
-        if (Py4Incompact3D.HAVE_HDF5):
+        def suffix(s, sep="."):
+            return s.split(sep)[-1]
+
+        def is_hdf5(filename):
+            sfx = suffix(filename)
+            return sfx == "hdf5"
+        
+        def is_adios2(filename):
+            adios2_suffixes = ["bp4", "bp5", "sst"]
+            sfx = suffix(filename)
+            return (sfx in adios2_suffixes) or is_hdf5(filename)
+
+        if (py4incompact3d.HAVE_ADIOS2):
+            read_adios = is_adios2(self.file_root)
+        elif (py4incompact3d.HAVE_HDF5):
             import h5py # XXX: This doesn't seem right...
             if h5py.is_hdf5(self.file_root):
                 read_hdf5 = True
             else:
                 print(f"{self.file_root} is not an HDF5 file")
 
-        if read_hdf5:
+        print(self.file_root)
+        print(read_adios, read_hdf5)
+        if read_adios:
+
+            filename = self.file_root.split(".")[0]
+            for t in load_times:
+                self.data[t] = self._read_adios2(t, mesh.Nx, mesh.Ny, mesh.Nz)
+            
+        elif read_hdf5:
             for t in load_times:
                 self.data[t] = self._read_hdf5(t, mesh.Nx, mesh.Ny, mesh.Nz)
         else:
@@ -178,7 +231,10 @@ class Field():
                 while (not read_success) and (len(zeros) < 10):
                     try:
                         filename = self.file_root + zeros + str(t)
-                        self.data[t] = self._read(filename, mesh.Nx, mesh.Ny, mesh.Nz, self.dtype)
+                        if (py4incompact3d.size == 1):
+                            self.data[t] = self._read(filename, mesh.Nx, mesh.Ny, mesh.Nz, self.dtype)
+                        else:
+                            self.data[t] = self._read_mpiio(filename, mesh.Nx, mesh.Ny, mesh.Nz, self.dtype)
                     except FileNotFoundError:
                         msg = "Could not read " + filename + ", " + self.file_root + ", " + str(t)
                         print(msg)
@@ -189,6 +245,11 @@ class Field():
                 if not read_success:
                     raise RuntimeError
 
+    def new(self, mesh, pencil=0, time=0):
+
+        self.data[time] = np.zeros((mesh.NxLocal[pencil], mesh.NyLocal[pencil], mesh.NzLocal[pencil]),
+                                   dtype=self.dtype)
+        
     def _get_timestamp(self, t, timestamp_len=3):
         """ Set the timestamp for output according to format: phiXXX where XXX is the time
         left-padded with zeros.
