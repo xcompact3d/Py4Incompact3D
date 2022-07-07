@@ -9,13 +9,15 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import py4incompact3d
+
 from warnings import warn
 
 from .input_reader import InputReader
 from .mesh import Mesh
 from .fields import Field
 
-if HAVE_DECOMP2D:
+if py4incompact3d.HAVE_DECOMP2D:
     import decomp2d
 
 MESH_PROPERTIES=["n","l","bc","beta","stretched","yp"]
@@ -62,7 +64,7 @@ class Postprocess():
                                   io_name=io_name)
 
     def init_io(self, io_name):
-        if HAVE_DECOMP2D:
+        if py4incompact3d.HAVE_DECOMP2D:
             decomp2d.decomp4py.init_io(io_name)
         
     def _process_input(self):

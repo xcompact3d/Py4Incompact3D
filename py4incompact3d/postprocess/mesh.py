@@ -9,6 +9,8 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import py4incompact3d
+
 from warnings import warn
 
 import math
@@ -17,7 +19,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 from scipy.interpolate import griddata
 
-if HAVE_DECOMP2D:
+if py4incompact3d.HAVE_DECOMP2D:
     import decomp2d
 
 class Mesh():
@@ -124,7 +126,7 @@ class Mesh():
 
     def __init_decomposition(self):
 
-        if HAVE_DECOMP2D:
+        if py4incompact3d.HAVE_DECOMP2D:
             # Initialise 2decomp&fft
             prow = 0
             pcol = 0
