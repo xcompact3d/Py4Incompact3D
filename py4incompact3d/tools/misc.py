@@ -128,23 +128,26 @@ def int_over_axis(mesh, x, axis):
             # Transpose from Z
             for i in range(s.shape[0]):
                 for j in range(s.shape[1]):
-                    phiZ.data[0][i][j][:] = s[i][j]
+                    for k in range(phi.shape[2]):
+                        phiZ.data[0][i][j][k] = s[i][j]
 
             phiY.data[0] = parallel.transpose(phiZ.data[0], "zy", phiY.data[0])
 
         else:
             for i in range(s.shape[0]):
-                for k in range(s.shape[1]):
-                    phiY.data[0][i][:][k] = s[j][k]
+                for j in range(phi.shape[1]):
+                    for k in range(s.shape[1]):
+                        phiY.data[0][i][j][k] = s[i][k]
 
         # Transpose from Y
         phiX.data[0] = parallel.transpose(phiY.data[0], "yx", phiX.data[0])
         phi = phiX.data[0]
 
     else:
-        for j in range(s.shape[0]):
-            for k in range(s.shape[1]):
-                phi[:][j][k] = s[j][k]
-    
+        for i in range(phi.shape[0]):
+            for j in range(s.shape[0]):
+                for k in range(s.shape[1]):
+                    phi[i][j][k] = s[j][k]
+
     return phi
 
