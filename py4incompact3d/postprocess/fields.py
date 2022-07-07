@@ -18,7 +18,8 @@ from warnings import warn
 import numpy as np
 from mpi4py import MPI
 
-import decomp2d
+if HAVE_DECOMP2D:
+    import decomp2d
 
 class Field():
 
@@ -68,7 +69,8 @@ class Field():
                 elif arg == "io_name":
                     self.io_name = val
 
-        decomp2d.decomp4py.register_variable(self.name, self.io_name)
+        if HAVE_DECOMP2D:
+            decomp2d.decomp4py.register_variable(self.name, self.io_name)
                     
         self.data = {}
 

@@ -17,7 +17,8 @@ import numpy as np
 from scipy.interpolate import interp1d
 from scipy.interpolate import griddata
 
-import decomp2d
+if HAVE_DECOMP2D:
+    import decomp2d
 
 class Mesh():
     """
@@ -123,26 +124,37 @@ class Mesh():
 
     def __init_decomposition(self):
 
-        # Initialise 2decomp&fft
-        prow = 0
-        pcol = 0
-        decomp2d.decomp4py.init_decomp4py(self.Nx, self.Ny, self.Nz, 0, 0)
+        if HAVE_DECOMP2D:
+            # Initialise 2decomp&fft
+            prow = 0
+            pcol = 0
+            decomp2d.decomp4py.init_decomp4py(self.Nx, self.Ny, self.Nz, 0, 0)
 
-        # Create local size arrays (one per pencil)
-        self.NxLocal = [0, 0, 0]
-        self.NyLocal = [0, 0, 0]
-        self.NzLocal = [0, 0, 0]
+            # Create local size arrays (one per pencil)
+            self.NxLocal = [0, 0, 0]
+            self.NyLocal = [0, 0, 0]
+            self.NzLocal = [0, 0, 0]
 
-        # Popoulate local size arrays
-        for ax in ["x", "y", "z"]:
-            self.___populate_local_sizes(ax)
+            # Popoulate local size arrays
+            for ax in ["x", "y", "z"]:
+                self.___populate_local_sizes(ax)
 
-        self.NxStart = [0, 0, 0]
-        self.NyStart = [0, 0, 0]
-        self.NzStart = [0, 0, 0]
+            self.NxStart = [0, 0, 0]
+            self.NyStart = [0, 0, 0]
+            self.NzStart = [0, 0, 0]
 
-        for ax in ["x", "y", "z"]:
-            self.___populate_local_starts(ax)
+            for ax in ["x", "y", "z"]:
+                self.___populate_local_starts(ax)
+
+        else:
+
+            self.NxLocal = [self.Nx, self.Nx, self.Nx]
+            self.NyLocal = [self.Ny, self.Ny, self.Ny]
+            self.NzLocal = [self.Nz, self.Nz, self.Nz]
+
+            self.NxStart = [0, 0, 0]
+            self.NyStart = [0, 0, 0]
+            self.NzStart = [0, 0, 0]
         
     def ___populate_local_sizes(self, ax):
         

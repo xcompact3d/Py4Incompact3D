@@ -15,8 +15,6 @@ FILE: __init__.py
 
 from mpi4py import MPI
 
-import decomp2d
-
 from .postprocess import *
 from .tools import *
 from .deriv import *
@@ -30,7 +28,18 @@ except ImportError:
 else:
     HAVE_HDF5 = True
 
-HAVE_ADIOS2 = bool(decomp2d.decomp4py.have_adios2)
+HAVE_DECOMP2D=False
+try:
+    import decomp2d
+except ImportError:
+    pass
+else:
+    HAVE_DECOMP2D = True
+
+if HAVE_DECOMP2D:
+    HAVE_ADIOS2 = bool(decomp2d.decomp4py.have_adios2)
+else:
+    HAVE_ADIOS2 = False
     
 # Set MPI variables
 comm = MPI.COMM_WORLD

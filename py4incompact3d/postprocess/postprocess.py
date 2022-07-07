@@ -15,7 +15,8 @@ from .input_reader import InputReader
 from .mesh import Mesh
 from .fields import Field
 
-import decomp2d
+if HAVE_DECOMP2D:
+    import decomp2d
 
 MESH_PROPERTIES=["n","l","bc","beta","stretched","yp"]
 
@@ -61,7 +62,8 @@ class Postprocess():
                                   io_name=io_name)
 
     def init_io(self, io_name):
-        decomp2d.decomp4py.init_io(io_name)
+        if HAVE_DECOMP2D:
+            decomp2d.decomp4py.init_io(io_name)
         
     def _process_input(self):
         return self.input_reader.read(self.input_file)
