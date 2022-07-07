@@ -3,7 +3,7 @@ import setuptools
 REQUIREMENTS=[
     "numpy",
     "mpi4py",
-    "decomp-2d4py"
+    # "decomp-2d4py"
 ]
 
 setuptools.setup(
