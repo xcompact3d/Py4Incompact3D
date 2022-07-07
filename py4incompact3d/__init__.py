@@ -15,10 +15,6 @@ FILE: __init__.py
 
 from mpi4py import MPI
 
-from .postprocess import *
-from .tools import *
-from .deriv import *
-
 # Try to import h5py for use with HDF5 files
 HAVE_HDF5=False
 try:
