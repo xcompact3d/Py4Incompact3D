@@ -30,9 +30,9 @@ Documentation
 Documentation of functions can be found under `doc/build/latex/`.
 
 To regenerate documentation, from the project root type :code:`make -C doc/ latexpdf` (requires
-sphinx with the :code:`sphinx-fortran` extension, see sphix-fortran_ for instructions).
+sphinx with the :code:`sphinx-fortran` extension `installation instructions`_).
 
-.. _sphinx-fortran: https://sphinx-fortran.readthedocs.io/en/latest/index.html
+.. _installation instructions: https://sphinx-fortran.readthedocs.io/en/latest/index.html
 
 Contributing
 ------------
