@@ -25,24 +25,18 @@ INPUT_FILES={"CS6":"input.json",
              # "FD2-2x":"input-2ndorder-2x.json"
 }
 RE=4200.0 # Bulk Reynolds number
-NTIME={"CS6":200000,
-       "FD2":200000,
-       "FD2-2x":400000}
-T={"CS6":"0300000",
-   "FD2":"0300000",
-   "FD2-2x":"0600000"}
+NTIME={"CS6":100000}
+T={"CS6":"0100000"}
 HDR="=" * 72
 LINE="-" * 72
-LINES={"CS6":"-",
-       "FD2":"-.",
-       "FD2-2x":"--"}
+LINES={"CS6":"-"}
 
 # Location of reference data
-REFLEE="/home/paul/DATA/benchmarking/channel-flow/data_lee_retau180.txt"
-REFLEEPRIME="/home/paul/DATA/benchmarking/channel-flow/data_lee_fluct_retau180.txt"
-REFVREMU="/home/paul/DATA/benchmarking/channel-flow/data_vreman_u_retau180.txt"
-REFVREMV="/home/paul/DATA/benchmarking/channel-flow/data_vreman_v_retau180.txt"
-REFVREMW="/home/paul/DATA/benchmarking/channel-flow/data_vreman_w_retau180.txt"
+REFLEE="./data_lee_retau180.txt"
+REFLEEPRIME="./data_lee_fluct_retau180.txt"
+REFVREMU="./data_vreman_u_retau180.txt"
+REFVREMV="./data_vreman_v_retau180.txt"
+REFVREMW="./data_vreman_w_retau180.txt"
 
 # Start and end of arrays of interest
 FIRST=0       # Where does the IBM start (N.B. counts from zero)
@@ -65,7 +59,7 @@ def load_dataset(input_file, t):
         mesh
 
 def calc_mean(phi, ntime):
-    return phi / float(ntime)
+    return phi #/ float(ntime)
 
 def calc_uprime(umean, uumean):
     return (uumean - umean**2)**0.5
@@ -75,13 +69,6 @@ def main ():
     print(HDR)
     print("Post-processing channel flow.")
     print(LINE)
-
-    print("WARNING: stats calculation updated for x3d hackathon2021")
-    print("         new code version outputs means, not sums.")
-    print("         If using pre-hackathon2021 code edit this script")
-    print("         to set NTIME appropriately (the averaging period).")
-    for key in NTIME.keys():
-        NTIME[key] = 1
 
     # Load data
     umean = {}; vmean = {}; wmean = {}
@@ -135,6 +122,7 @@ def main ():
         # dUdy = (abs(dUdy[0]) + abs(dUdy[-1])) / 2
         dUdy = (u[1] - u[0]) / (yp[input_file][1] - yp[input_file][0])
         tauw = dUdy / RE
+        print(tauw)
         utau = math.sqrt(tauw)
         Retau = RE * utau
 
@@ -159,6 +147,7 @@ def main ():
         wmean[input_file] = w
 
         # Compute u'
+        print(u[0], u[-1])
         uprime[input_file] = calc_uprime(u, uu)
         vprime[input_file] = calc_uprime(v, vv)
         wprime[input_file] = calc_uprime(w, ww)
@@ -200,7 +189,7 @@ def main ():
     plt.ylim(ymin=0)
     plt.legend(loc="upper left",
                numpoints=1)
-    plt.savefig("umean" + t + ".eps", bbox_inches="tight")
+    plt.savefig("umean" + t + ".png", bbox_inches="tight")
     plt.close()
 
     # Uprime
@@ -246,7 +235,7 @@ def main ():
     plt.ylabel(r"$\langle u'_+ \rangle$")
     plt.xlim((yp[input_file][1], 180))
     plt.legend()
-    plt.savefig("velprime" + t + ".eps", bbox_inches="tight")
+    plt.savefig("velprime" + t + ".png", bbox_inches="tight")
     plt.close()
 
     # # Save to file
@@ -357,10 +346,10 @@ def apply_symmetry(prof):
         symprof = np.zeros(n)
 
     for i in range(n):
-        symprof[i] = 0.5 * (prof[i] + prof[-(i + 1)])
+        symprof[i] = 0.5 * (prof[0][i][0] + prof[0][-(i + 1)][0])
 
     if (N / 2) > n:
-        symprof[n] = prof[n]
+        symprof[n] = prof[0][n][0]
 
     return symprof
     
