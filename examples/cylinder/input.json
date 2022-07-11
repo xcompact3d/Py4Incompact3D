@@ -9,7 +9,7 @@
     "properties": {
       "Nx": 257,
       "Ny": 128,
-      "Nz": 64,
+      "Nz": 32,
       "Lx": 20.0,
       "Ly": 12.0,
       "Lz": 6.0,
@@ -18,75 +18,21 @@
       "BCz": 0
     }
   },
-	"umean1": {
+	"umean": {
 		"type": "data",
 		"name": "umean",
 		"description": "Mean x velocity",
 		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/cylinder/iibm1_LR/umean.dat",
+			"filename": "./umean.dat",
 			"direction": [0]
 		}
 	},
-	"uumean1": {
+	"uumean": {
 		"type": "data",
 		"name": "uumean",
 		"description": "Mean square x velocity",
 		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/cylinder/iibm1_LR/uumean.dat",
-			"direction": [0]
-		}
-	},
-	"umean2": {
-		"type": "data",
-		"name": "umean",
-		"description": "Mean x velocity",
-		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/cylinder/iibm2_LR/umean.dat",
-			"direction": [0]
-		}
-	},
-	"uumean2": {
-		"type": "data",
-		"name": "uumean",
-		"description": "Mean square x velocity",
-		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/cylinder/iibm2_LR/uumean.dat",
-			"direction": [0]
-		}
-	},
-	"umean1-o2": {
-		"type": "data",
-		"name": "umean",
-		"description": "Mean x velocity",
-		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/cylinder/iibm1_LR_O2/umean.dat",
-			"direction": [0]
-		}
-	},
-	"uumean1-o2": {
-		"type": "data",
-		"name": "uumean",
-		"description": "Mean square x velocity",
-		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/cylinder/iibm1_LR_O2/uumean.dat",
-			"direction": [0]
-		}
-	},
-	"umean2-o2": {
-		"type": "data",
-		"name": "umean",
-		"description": "Mean x velocity",
-		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/cylinder/iibm2_LR_O2/umean.dat",
-			"direction": [0]
-		}
-	},
-	"uumean2-o2": {
-		"type": "data",
-		"name": "uumean",
-		"description": "Mean square x velocity",
-		"properties": {
-			"filename": "/home/paul/DATA/Incompact3d/cylinder/iibm2_LR_O2/uumean.dat",
+			"filename": "./uumean.dat",
 			"direction": [0]
 		}
 	}

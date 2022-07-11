@@ -12,16 +12,14 @@ plt.rc("font", size=11)
 from py4incompact3d.postprocess.postprocess import Postprocess
 from py4incompact3d.tools.misc import avg_over_axis
 
-REFPATH="/home/paul/DATA/benchmarking/cylinder/"
-REFUMEAN="umean.csv"
-REFUUMEAN="uumean.csv"
+REFPATH="./"
+REFUMEAN="ref_mittal_umean.csv"
+REFUUMEAN="ref_mittal_uumean.csv"
 
 FIGX=5.0
 FIGY=3.5
 
 INPUT="input.json"
-
-NTIME=120000
 
 # Cylinder centre
 X0=5.0
@@ -31,49 +29,23 @@ def main():
 
     postprocess = Postprocess(INPUT)
     mesh = postprocess.mesh
-    t = "0160000"
+    t = "0060000" ###TO MODIFY TO MODIFY###
     postprocess.load(time=[t])
 
-    print("WARNING: stats calculation updated for x3d hackathon2021")
-    print("         new code version outputs means, not sums.")
-    print("         If using pre-hackathon2021 code edit this script")
-    print("         to set NTIME appropriately (the averaging period).")
-    NTIME = 1
-    msg = "Averaging period: NTIME = " + str(NTIME)
-    print()
-
-    umean1 = postprocess.fields["umean1"].data[t] / float(NTIME)
-    uumean1 = postprocess.fields["uumean1"].data[t] / float(NTIME)
-    umean2 = postprocess.fields["umean2"].data[t] / float(NTIME)
-    uumean2 = postprocess.fields["uumean2"].data[t] / float(NTIME)
+    umean = postprocess.fields["umean"].data[t] 
+    uumean = postprocess.fields["uumean"].data[t]
     
-    umean1_o2 = postprocess.fields["umean1-o2"].data[t] / float(NTIME)
-    uumean1_o2 = postprocess.fields["uumean1-o2"].data[t] / float(NTIME)
-    umean2_o2 = postprocess.fields["umean2-o2"].data[t] / float(NTIME)
-    uumean2_o2 = postprocess.fields["uumean2-o2"].data[t] / float(NTIME)
+    umean = avg_over_axis(mesh, umean, 2)
+    uumean = avg_over_axis(mesh, uumean, 2)
 
-    umean1 = avg_over_axis(mesh, umean1, 2)
-    uumean1 = avg_over_axis(mesh, uumean1, 2)
-    umean2 = avg_over_axis(mesh, umean2, 2)
-    uumean2 = avg_over_axis(mesh, uumean2, 2)
-
-    umean1_o2 = avg_over_axis(mesh, umean1_o2, 2)
-    uumean1_o2 = avg_over_axis(mesh, uumean1_o2, 2)
-    umean2_o2 = avg_over_axis(mesh, umean2_o2, 2)
-    uumean2_o2 = avg_over_axis(mesh, uumean2_o2, 2)
-
-    uprime1 = uumean1 - umean1**2
-    uprime2 = uumean2 - umean2**2
+    uprime = uumean - umean**2
     
-    uprime1_o2 = uumean1_o2 - umean1_o2**2
-    uprime2_o2 = uumean2_o2 - umean2_o2**2
-
     # Plot vs. reference data
     plt.figure(figsize=(FIGX, FIGY))
     
     umean_ref = (read_refdat(REFPATH+REFUMEAN))
     for key in umean_ref:
-        y = get_nearest_profile(umean1, mesh, get_axialdist(key) + X0)
+        y = get_nearest_profile(umean, mesh, get_axialdist(key) + X0)
         y = get_subrange(y, mesh.dy, Y0, -2, +2)
         y = zero_offset(y)
         y = offset_by_axialdist(y, key)
@@ -81,33 +53,6 @@ def main():
         x = get_subrange(x, mesh.dy, Y0, -2, +2)
         plt.plot(x, y, color="black",
                  ls="-")
-        
-        y = get_nearest_profile(umean2, mesh, get_axialdist(key) + X0)
-        y = get_subrange(y, mesh.dy, Y0, -2, +2)
-        y = zero_offset(y)
-        y = offset_by_axialdist(y, key)
-        x = [j * mesh.dy - 0.5 * mesh.Ly for j in range(mesh.Ny)]
-        x = get_subrange(x, mesh.dy, Y0, -2, +2)
-        plt.plot(x, y, color="red",
-                 ls="--")
-        
-        y = get_nearest_profile(umean1_o2, mesh, get_axialdist(key) + X0)
-        y = get_subrange(y, mesh.dy, Y0, -2, +2)
-        y = zero_offset(y)
-        y = offset_by_axialdist(y, key)
-        x = [j * mesh.dy - 0.5 * mesh.Ly for j in range(mesh.Ny)]
-        x = get_subrange(x, mesh.dy, Y0, -2, +2)
-        plt.plot(x, y, color="blue",
-                 ls="-.")
-        
-        y = get_nearest_profile(umean2_o2, mesh, get_axialdist(key) + X0)
-        y = get_subrange(y, mesh.dy, Y0, -2, +2)
-        y = zero_offset(y)
-        y = offset_by_axialdist(y, key)
-        x = [j * mesh.dy - 0.5 * mesh.Ly for j in range(mesh.Ny)]
-        x = get_subrange(x, mesh.dy, Y0, -2, +2)
-        plt.plot(x, y, color="orange",
-                 ls=":")
         
         x, y = get_xydata(umean_ref, key)
         y = zero_offset(y)
@@ -120,13 +65,13 @@ def main():
     plt.ylim((-3.5, -1))
     plt.xlabel(r"$y$")
     plt.ylabel(r"$\langle u \rangle$")
-    plt.savefig("umean.eps", bbox_inches="tight")
+    plt.savefig("umean.png", bbox_inches="tight")
 
     plt.figure(figsize=(FIGX, FIGY))
 
     uumean_ref = (read_refdat(REFPATH+REFUUMEAN))
     for key in uumean_ref:
-        y = get_nearest_profile(uprime1, mesh, get_axialdist(key) + X0)
+        y = get_nearest_profile(uprime, mesh, get_axialdist(key) + X0)
         y = get_subrange(y, mesh.dy, Y0, -2, +2)
         y = zero_offset(y)
         y = offset_by_axialdist(y, key)
@@ -135,32 +80,6 @@ def main():
         plt.plot(x, y, color="black",
                  ls="-")
         
-        y = get_nearest_profile(uprime2, mesh, get_axialdist(key) + X0)
-        y = get_subrange(y, mesh.dy, Y0, -2, +2)
-        y = zero_offset(y)
-        y = offset_by_axialdist(y, key)
-        x = [j * mesh.dy - 0.5 * mesh.Ly for j in range(mesh.Ny)]
-        x = get_subrange(x, mesh.dy, Y0, -2, +2)
-        plt.plot(x, y, color="red",
-                 ls="--")
-        
-        y = get_nearest_profile(uprime1_o2, mesh, get_axialdist(key) + X0)
-        y = get_subrange(y, mesh.dy, Y0, -2, +2)
-        y = zero_offset(y)
-        y = offset_by_axialdist(y, key)
-        x = [j * mesh.dy - 0.5 * mesh.Ly for j in range(mesh.Ny)]
-        x = get_subrange(x, mesh.dy, Y0, -2, +2)
-        plt.plot(x, y, color="blue",
-                 ls="-.")
-        
-        y = get_nearest_profile(uprime2_o2, mesh, get_axialdist(key) + X0)
-        y = get_subrange(y, mesh.dy, Y0, -2, +2)
-        y = zero_offset(y)
-        y = offset_by_axialdist(y, key)
-        x = [j * mesh.dy - 0.5 * mesh.Ly for j in range(mesh.Ny)]
-        x = get_subrange(x, mesh.dy, Y0, -2, +2)
-        plt.plot(x, y, color="orange",
-                 ls=":")
         
         x, y = get_xydata(uumean_ref, key)
         y = zero_offset(y)
@@ -173,7 +92,7 @@ def main():
     # plt.ylim((-3.5, -0.5))
     plt.xlabel(r"$y$")
     plt.ylabel(r"$\langle u' u' \rangle$")
-    plt.savefig("uumean.eps", bbox_inches="tight")
+    plt.savefig("uumean.png", bbox_inches="tight")
 
 def zero_offset(y):
 
