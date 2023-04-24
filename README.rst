@@ -22,7 +22,9 @@ Installation
 * [Optional] Install :code:`h5py` using :code:`pip3 install h5py` to work with HDF5 files generated
   by Xcompact3d - note this is only intended as a temporary solution until a proper integration with
   ADIOS2 is implemented.
-  Upon import :code:`py4incompact3d` will report the status of HDF5 functionality.
+  Upon import :code:`py4incompact3d` will report the status of HDF5 functionality, this can be toggled
+  on/off by running `py4incompact3d.toggle_hdf5()` which will repeat the status report to confirm if
+  HDF5 has been enabled.
   
 Documentation
 -------------

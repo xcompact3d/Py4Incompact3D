@@ -37,9 +37,31 @@ def report_p4i3d_status():
     print("Py4Incompact3D init status:")
     print("- MPI:")
     print(f"+- running on {size} ranks")
-    print(f"- HDF5 enabled: {HAVE_HDF5}")
-    print(f"- ADIOS2 enabled: {HAVE_ADIOS2}")
+    print(f"- HDF5 enabled: {extras.HAVE_HDF5}")
+    print(f"- ADIOS2 enabled: {extras.HAVE_ADIOS2}")
     print(line_sep)
 
 if (rank == 0):
     report_p4i3d_status()
+
+def toggle_hdf5():
+    """Toggle HDF5 support on/off."""
+
+    if HDF5_AVAILABLE:
+        extras.HAVE_HDF5 = not extras.HAVE_HDF5
+    elif (rank == 0):
+        print("WARNING: HDF5 is not available!")
+
+    if (rank == 0):
+        report_p4i3d_status()
+
+def toggle_adios2():
+    """Toggle ADIOS2 support on/off."""
+
+    if ADIOS2_AVAILABLE:
+        HAVE_ADIOS2 = not HAVE_ADIOS2
+    elif (rank == 0):
+        print("WARNING: ADIOS2 is not available!")
+
+    if (rank == 0):
+        report_p4i3d_status()
