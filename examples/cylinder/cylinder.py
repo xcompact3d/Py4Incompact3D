@@ -29,7 +29,7 @@ def main():
 
     postprocess = Postprocess(INPUT)
     mesh = postprocess.mesh
-    t = "0060000" ###TO MODIFY TO MODIFY###
+    t = "60000" ###TO MODIFY TO MODIFY###
     postprocess.load(time=[t])
 
     umean = postprocess.fields["umean"].data[t] 
