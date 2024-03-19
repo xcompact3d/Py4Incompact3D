@@ -26,7 +26,7 @@ INPUT_FILES={"CS6":"input.json",
 }
 RE=4200.0 # Bulk Reynolds number
 NTIME={"CS6":100000}
-T={"CS6":"0100000"}
+T={"CS6":"100000"}
 HDR="=" * 72
 LINE="-" * 72
 LINES={"CS6":"-"}
