@@ -12,9 +12,9 @@ import numpy as np
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
-plt.rc("text", usetex=True)
-plt.rc("font", family="serif")
-plt.rc("font", size=11)
+#plt.rc("text", usetex=True)
+#plt.rc("font", family="serif")
+#plt.rc("font", size=11)
 
 from py4incompact3d.postprocess.postprocess import Postprocess
 from py4incompact3d.deriv.deriv import deriv
