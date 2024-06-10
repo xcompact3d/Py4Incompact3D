@@ -121,19 +121,37 @@ def main():
 
     n = Re_theta.shape[0]
     i_670 = 0; i_1000 = 0
+
+    def print_stats(Re_tgt, Re_theta, i, H12, cf, utau, Re_tau, Re, nx, nz):
+        print(f"Selected theta {Re_tgt} {Re_theta} {i} {H12} {cf} {utau} {Re_tau} {(300 / (nx - 1)) * utau * Re} {(5 / nz) * utau * Re}")
+        
     for i in range(n):
 
         if (Re_theta[i] > 668) and (Re_theta[i] < 672):
             i_670 = i
-            print(f"Selected theta 670 {Re_theta[i]} {i_670} {H_12[i]} {cf[i]} {utau[i]} {Re_tau[i]} {(300 / (mesh.Nx-1)) * utau[i] * Re} {(5 / mesh.Nz) * utau[i] * Re}")
+            print_stats(670, Re_theta[i], i, H_12[i], cf[i], utau[i], Re_tau[i], Re, mesh.Nx, mesh.Nz)
         if (Re_theta[i] > 998) and (Re_theta[i] < 1002):
             i_1000 = i
-            print(f"Selected theta 1000 {Re_theta[i]} {i_1000} {H_12[i]} {cf[i]} {utau[i]} {Re_tau[i]} {(300 / (mesh.Nx-1)) * utau[i] * Re} {(5 / mesh.Nz) * utau[i] * Re}")
+            print_stats(1000, Re_theta[i], i, H_12[i], cf[i], utau[i], Re_tau[i], Re, mesh.Nx, mesh.Nz)
 
-    u_670 = u[i_670, j0:je]
-    up_670 = uprime[i_670, j0:je]
-    u_1000 = u[i_670, j0:je]
-    up_1000 = uprime[i_670, j0:je]
+    u_670 = u[i_670, :]
+    up_670 = uprime[i_670, :]
+    u_1000 = u[i_670, :]
+    up_1000 = uprime[i_670, :]
+
+    import matplotlib.pyplot as plt
+
+    plt.plot(u_670 / utau[i_670], mesh.yp * utau[i_670] * Re)
+    plt.xlabel("U+")
+    plt.ylabel("Y+")
+    plt.savefig("tbl_670.pdf")
+    plt.close()
+
+    plt.plot(u_1000 / utau[i_1000], mesh.yp * utau[i_1000] * Re)
+    plt.xlabel("U+")
+    plt.ylabel("Y+")
+    plt.savefig("tbl_1000.pdf")
+    plt.close()
     
 if __name__ == "__main__":
     main()
