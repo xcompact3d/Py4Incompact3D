@@ -141,6 +141,7 @@ def main():
 
     import matplotlib.pyplot as plt
 
+    # Plot
     plt.plot(u_670 / utau[i_670], mesh.yp * utau[i_670] * Re)
     plt.xlabel("U+")
     plt.ylabel("Y+")
@@ -152,6 +153,35 @@ def main():
     plt.ylabel("Y+")
     plt.savefig("tbl_1000.pdf")
     plt.close()
+
+    def data_to_file(filename, datasets):
+
+        n = len(datasets[0])
+        with open(filename, "w") as output:
+            for i in range(n):
+                line = ""
+                for d in datasets:
+                    line += str(d[i]) + " "
+                line += "\n"
+                output.write(line)
+
+    data_to_file("u_prof670.dat",
+                 [mesh.yp * utau[i_670] * Re,
+                  u_670 / utau[i_670],
+                  up_670 / utau[i_670]])
+    data_to_file("u_prof1000.dat",
+                 [mesh.yp * utau[i_1000] * Re,
+                  u_1000 / utau[i_1000],
+                  up_1000 / utau[i_1000]])
+    data_to_file("evol.dat",
+                 [[i for i in range(mesh.Nx)],
+                  cf,
+                  delta_99,
+                  delta_s,
+                  theta,
+                  Re_theta,
+                  H_12,
+                  Re_tau])
     
 if __name__ == "__main__":
     main()
