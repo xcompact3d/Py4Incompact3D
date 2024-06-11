@@ -15,7 +15,10 @@
       "Lz": 5.0,
       "BCx": 2,
       "BCy": 2,
-      "BCz": 0
+      "BCz": 0,
+      "beta": 0.8,
+      "stretched": 3,
+      "yp": "yp.dat"
     }
   },
 	"umean": {
