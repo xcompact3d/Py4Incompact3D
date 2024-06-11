@@ -108,19 +108,22 @@ class Mesh():
 
         if self.stretched:
             try:
-                self.yp = properties["yp"]
-                with open(self.yp, "r") as ypfile:
+                yp_file = properties["yp"]
+                with open(yp_file, "r") as ypfile:
                     j = 0
                     self.yp = np.zeros(self.Ny)
+                    self.ppy = np.zeros(self.Ny)
                     for row in ypfile:
-                        self.yp[j] = float(row)
+                        words = row.split()
+                        self.yp[j] = float(words[0])
+                        self.ppy[j] = float(words[1])
                         j += 1
-
-                yp, yeta = self.calc_yp()
-            except:
+                print(f"Mesh YP: {self.yp[0]} {self.yp[1]}")
+            except Exception as e:
+                print(e)
+                print("UHHH")
                 self.yp, yeta = self.calc_yp()
-
-            self.ppy = self.calc_ppy(yeta)
+                self.ppy = self.calc_ppy(yeta)
         else:
             self.yp = None
 
@@ -234,11 +237,12 @@ class Mesh():
 
     def calc_yp(self):
 
+        print("Computing YP")
         self.compute_derivvars()
         
         yinf = -self.Ly / 2.0
         den = 2.0 * self.beta * yinf
-        xnum = -(yinf + math.sqrt((math.pi * self.beta)**2 + yinf**2))
+        xnum = -(yinf + math.sqrt(math.pi**2 * self.beta**2 + yinf**2))
         alpha = abs(xnum / den)
         xcx = 1.0 / self.beta / alpha
 
@@ -260,7 +264,7 @@ class Mesh():
                 xnum = den1 / math.sqrt(alpha / math.pi) / math.sqrt(self.beta) \
                        / math.sqrt(math.pi)
                 den = 2.0 * math.sqrt(alpha / math.pi) * math.sqrt(self.beta) \
-                      * math.pi**1.5
+                      * math.pi * math.sqrt(math.pi)
                 den3 = (math.sin(math.pi * yeta[j]))**2 / self.beta / math.pi \
                        + alpha / math.pi
                 den4 = 2.0 * alpha * self.beta - math.cos(2.0 * math.pi * yeta[j]) + 1.0
@@ -282,7 +286,7 @@ class Mesh():
                     elif (self.stretched == 2):
                         yp[j] = xnum1 + cst + self.Ly
                     else:
-                        yp[j] = 2 * (xnum1 - cst + self.Ly)
+                        yp[j] = 2 * (xnum1 + cst + self.Ly)
                 else:
                     if (self.stretched == 1):
                         yp[j] = -yinf
@@ -303,15 +307,9 @@ class Mesh():
         ppy = np.zeros(self.Ny)
         alpha = self.calc_alpha()
         
-        if (self.stretched == 3):
-            yetai = self.calc_yetai(alpha)
-            for j in range(self.Ny):
-                ppy[j] = self.Ly * (alpha / math.pi \
-                                    + (1.0 / math.pi / self.beta) * (math.sin(math.pi * yetai[j]))**2)
-        else:
-            for j in range(self.Ny):
-                ppy[j] = self.Ly * (alpha / math.pi \
-                                    + (1.0 / math.pi / self.beta) * (math.sin(math.pi * yeta[j]))**2)
+        for j in range(self.Ny):
+            ppy[j] = self.Ly * (alpha / math.pi \
+                                + (1.0 / math.pi / self.beta) * (math.sin(math.pi * yeta[j]))**2)
 
         return ppy
 
