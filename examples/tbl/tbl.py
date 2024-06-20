@@ -141,24 +141,24 @@ def main():
 
     import matplotlib.pyplot as plt
 
-    # Plot
-    plt.plot(mesh.yp * utau[i_670] * Re, u_670 / utau[i_670],
-             ls="",
-             marker="+")
-    plt.xscale("log")
-    plt.xlabel("U+")
-    plt.ylabel("Y+")
-    plt.savefig("tbl_670.pdf")
-    plt.close()
+    # Plotting
+    def plot(u, uprime, utau, Re_theta):
+        def plotone(u, xlabel, varname):
+            plt.plot(mesh.yp * utau * Re, u / utau,
+                     ls="",
+                     marker="+")
+            plt.xscale("log")
+            plt.xlabel(xlabel)
+            plt.ylabel("Y+")
+            figname = varname + "_" + str(Re_theta) + ".pdf"
+            plt.savefig(figname)
+            plt.close()
 
-    plt.plot(mesh.yp * utau[i_1000] * Re, u_1000 / utau[i_1000],
-             ls="",
-             marker="+")
-    plt.xscale("log")
-    plt.ylabel("U+")
-    plt.xlabel("Y+")
-    plt.savefig("tbl_1000.pdf")
-    plt.close()
+        plotone(u, "U+", "u")
+        plotone(uprime, "U'", "uprime")
+
+    plot(u_670, up_670, utau[i_670], 670)
+    plot(u_1000, up_1000, utau[i_1000], 1000)
 
     def data_to_file(filename, datasets):
 
@@ -171,7 +171,6 @@ def main():
                 line += "\n"
                 output.write(line)
 
-    print(mesh.yp[0], mesh.yp[1], utau[i_670], utau[i_1000], Re)
     data_to_file("u_prof670.dat",
                  [mesh.yp * utau[i_670] * Re,
                   u_670 / utau[i_670],
